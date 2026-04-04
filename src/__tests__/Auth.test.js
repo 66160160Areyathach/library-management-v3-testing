@@ -98,3 +98,65 @@ describe("Authentication API", () => {
     });
   });
 });
+
+describe("Authentication API - Excel Test Cases", () => {
+  test("TC-001 POST /api/auth/login valid credentials", async () => {
+    const res = await request(app).post("/api/auth/login").send({
+      username: "admin",
+      password: "Admin@123",
+    });
+    expect(res.status).toBe(200);
+  });
+
+  test("TC-002 POST /api/auth/login wrong password", async () => {
+    const res = await request(app).post("/api/auth/login").send({
+      username: "admin",
+      password: "wrongpass",
+    });
+    expect(res.status).toBe(401);
+  });
+
+  test("TC-003 POST /api/auth/login unknown username", async () => {
+    const res = await request(app).post("/api/auth/login").send({
+      username: "notexist99",
+      password: "Admin@123",
+    });
+    expect(res.status).toBe(401);
+  });
+
+  test("TC-004 POST /api/auth/login empty body", async () => {
+    const res = await request(app).post("/api/auth/login").send({});
+    expect(res.status).toBe(400);
+  });
+
+  test("TC-005 POST /api/auth/login SQL injection username", async () => {
+    const res = await request(app).post("/api/auth/login").send({
+      username: "' OR '1'='1",
+      password: "x",
+    });
+    expect(res.status).toBe(401);
+  });
+
+  test("TC-006 POST /api/auth/login username length 300", async () => {
+    const res = await request(app).post("/api/auth/login").send({
+      username: "a".repeat(300),
+      password: "x",
+    });
+    expect(res.status).toBe(400);
+  });
+
+  test("TC-032 POST /api/auth/login brute-force 50 requests", async () => {
+    let found429 = false;
+    for (let i = 0; i < 50; i += 1) {
+      const res = await request(app).post("/api/auth/login").send({
+        username: "admin",
+        password: "wrongpass",
+      });
+      if (res.status === 429) {
+        found429 = true;
+        break;
+      }
+    }
+    expect(found429).toBe(true);
+  });
+});

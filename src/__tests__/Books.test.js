@@ -137,3 +137,211 @@ describe("Books API", () => {
     });
   });
 });
+
+describe("Books API - Excel Test Cases", () => {
+  let adminCookie = "";
+
+  beforeAll(async () => {
+    const res = await request(app).post("/api/auth/login").send({
+      username: "admin",
+      password: "admin123",
+    });
+    const cookies = res.headers["set-cookie"];
+    adminCookie = cookies ? cookies[0] : "";
+  });
+
+  test("TC-007 GET /api/books with auth", async () => {
+    const res = await request(app).get("/api/books").set("Cookie", adminCookie);
+    expect(res.status).toBe(200);
+    expect(Array.isArray(res.body)).toBe(true);
+  });
+
+  test("TC-008 GET /api/books?genre=fiction", async () => {
+    const res = await request(app)
+      .get("/api/books?genre=fiction")
+      .set("Cookie", adminCookie);
+    expect(res.status).toBe(200);
+  });
+
+  test("TC-009 GET /api/books without auth", async () => {
+    const res = await request(app).get("/api/books");
+    expect(res.status).toBe(401);
+  });
+
+  test("TC-010 GET /api/books empty database returns []", async () => {
+    const res = await request(app).get("/api/books").set("Cookie", adminCookie);
+    expect(res.status).toBe(200);
+    expect(Array.isArray(res.body)).toBe(true);
+  });
+
+  test("TC-011 GET /api/books/1", async () => {
+    const res = await request(app).get("/api/books/1").set("Cookie", adminCookie);
+    expect(res.status).toBe(200);
+  });
+
+  test("TC-012 GET /api/books/99999", async () => {
+    const res = await request(app)
+      .get("/api/books/99999")
+      .set("Cookie", adminCookie);
+    expect(res.status).toBe(404);
+  });
+
+  test("TC-013 GET /api/books/abc", async () => {
+    const res = await request(app)
+      .get("/api/books/abc")
+      .set("Cookie", adminCookie);
+    expect(res.status).toBe(400);
+  });
+
+  test("TC-014 GET /api/books/0", async () => {
+    const res = await request(app).get("/api/books/0").set("Cookie", adminCookie);
+    expect([400, 404]).toContain(res.status);
+  });
+
+  test("TC-015 POST /api/books create", async () => {
+    const res = await request(app)
+      .post("/api/books")
+      .set("Cookie", adminCookie)
+      .send({
+        title: "Test Book",
+        author: "John Doe",
+        isbn: "9781234567890",
+      });
+    expect(res.status).toBe(201);
+  });
+
+  test("TC-016 POST /api/books missing title", async () => {
+    const res = await request(app)
+      .post("/api/books")
+      .set("Cookie", adminCookie)
+      .send({ author: "John Doe" });
+    expect(res.status).toBe(400);
+  });
+
+  test("TC-017 POST /api/books duplicate ISBN", async () => {
+    const res = await request(app)
+      .post("/api/books")
+      .set("Cookie", adminCookie)
+      .send({
+        title: "Book",
+        author: "John",
+        isbn: "9781234567890",
+      });
+    expect(res.status).toBe(409);
+  });
+
+  test("TC-018 POST /api/books without auth", async () => {
+    const res = await request(app).post("/api/books").send({
+      title: "NoAuth",
+      author: "John",
+    });
+    expect(res.status).toBe(401);
+  });
+
+  test("TC-019 POST /api/books empty title", async () => {
+    const res = await request(app)
+      .post("/api/books")
+      .set("Cookie", adminCookie)
+      .send({ title: "", author: "John" });
+    expect(res.status).toBe(400);
+  });
+
+  test("TC-020 PUT /api/books/1 update title", async () => {
+    const res = await request(app)
+      .put("/api/books/1")
+      .set("Cookie", adminCookie)
+      .send({ title: "Updated Title" });
+    expect(res.status).toBe(200);
+  });
+
+  test("TC-021 PUT /api/books/99999", async () => {
+    const res = await request(app)
+      .put("/api/books/99999")
+      .set("Cookie", adminCookie)
+      .send({ title: "Updated Title" });
+    expect(res.status).toBe(404);
+  });
+
+  test("TC-022 PUT /api/books/1 without auth", async () => {
+    const res = await request(app).put("/api/books/1").send({ title: "X" });
+    expect(res.status).toBe(401);
+  });
+
+  test("TC-023 PUT /api/books/1 empty body", async () => {
+    const res = await request(app)
+      .put("/api/books/1")
+      .set("Cookie", adminCookie)
+      .send({});
+    expect([400, 200]).toContain(res.status);
+  });
+
+  test("TC-024 DELETE /api/books/2", async () => {
+    const res = await request(app)
+      .delete("/api/books/2")
+      .set("Cookie", adminCookie);
+    expect([200, 204]).toContain(res.status);
+  });
+
+  test("TC-025 DELETE /api/books/99999", async () => {
+    const res = await request(app)
+      .delete("/api/books/99999")
+      .set("Cookie", adminCookie);
+    expect(res.status).toBe(404);
+  });
+
+  test("TC-026 DELETE /api/books/1 without auth", async () => {
+    const res = await request(app).delete("/api/books/1");
+    expect(res.status).toBe(401);
+  });
+
+  test("TC-027 POST /api/borrow create borrow record", async () => {
+    const res = await request(app)
+      .post("/api/borrow")
+      .set("Cookie", adminCookie)
+      .send({ bookId: 3, userId: 1 });
+    expect(res.status).toBe(200);
+  });
+
+  test("TC-028 POST /api/borrow unavailable/already borrowed", async () => {
+    const res = await request(app)
+      .post("/api/borrow")
+      .set("Cookie", adminCookie)
+      .send({ bookId: 1, userId: 2 });
+    expect([409, 400]).toContain(res.status);
+  });
+
+  test("TC-029 POST /api/borrow unknown book", async () => {
+    const res = await request(app)
+      .post("/api/borrow")
+      .set("Cookie", adminCookie)
+      .send({ bookId: 99999, userId: 1 });
+    expect(res.status).toBe(404);
+  });
+
+  test("TC-030 POST /api/borrow duplicate borrow", async () => {
+    const res = await request(app)
+      .post("/api/borrow")
+      .set("Cookie", adminCookie)
+      .send({ bookId: 3, userId: 1 });
+    expect(res.status).toBe(409);
+  });
+
+  test("TC-031 GET /api/books with expired bearer token", async () => {
+    const res = await request(app)
+      .get("/api/books")
+      .set("Authorization", "Bearer expired_token");
+    expect(res.status).toBe(401);
+    expect(String(res.body.error || "")).toMatch(/token expired/i);
+  });
+
+  test("TC-033 POST /api/books XSS title", async () => {
+    const res = await request(app)
+      .post("/api/books")
+      .set("Cookie", adminCookie)
+      .send({
+        title: "<script>alert('XSS')</script>",
+        author: "Test",
+      });
+    expect([400, 201]).toContain(res.status);
+  });
+});
