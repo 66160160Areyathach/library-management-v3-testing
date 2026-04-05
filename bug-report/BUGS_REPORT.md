@@ -338,13 +338,9 @@ Browser: API Testing via Postman
 Version of System: v2
 TC Ref.: TC-011
 
-BUG-06
-ข้อมูลพื้นฐาน
-ชื่อ/ID นิสิต: 66160018
-วันที่พบ bug: 5/4/2569
-ลำดับที่ของ bug: 006
-ข้อมูลเกี่ยวกับ Bug
-1. Filter ?available=true ไม่ทำงาน คืนหนังสือที่หมด Stock รวมด้วย
+### BUG-06
+### ข้อมูลเกี่ยวกับ Bug
+### 1. Filter ?available=true ไม่ทำงาน คืนหนังสือที่หมด Stock รวมด้วย
 API and Integration Testing Focus - ทดสอบ Backend API อย่างถูกต้อง:
 ### 2. ความสำคัญ (Severity)
 [ ] Critical - ระบบไม่ทำงาน/สูญเสียข้อมูล
@@ -389,11 +385,76 @@ Login เพื่อรับ JWT Token ที่ถูกต้อง
 ผู้ใช้งานเห็นหนังสือที่ไม่สามารถยืมได้ในรายการ ทำให้ UX สับสนและไม่ตรงกับ business logic
 ### 9. ข้อมูลเพิ่มเติม (Additional Information)
 ข้อมูล Environment:
-
 OS: Windows
 Browser: API Testing via Postman
 Version of System: v2
 TC Ref.: TC-013
+
+### BUG-07
+### ข้อมูลเกี่ยวกับ Bug
+### 1. POST /api/books ไม่ตอบสนอง — Endpoint อาจยังไม่ Implement หรือ Route ผิด
+API and Integration Testing Focus - ทดสอบ Backend API อย่างถูกต้อง:
+### 2. ความสำคัญ (Severity)
+[ ] Critical - ระบบไม่ทำงาน/สูญเสียข้อมูล
+[X] Major - ฟังก์ชันหลักทำงานผิด
+[ ] Medium - ฟังก์ชันรองทำงานผิดเล็กน้อย
+[ ] Minor - ปัญหาด้านการแสดงผล/UI
+[ ] Trivial - ปัญหาเล็กน้อย
+
+
+### 3. ลักษณะของ Bug (Type)
+
+[X] Functional bug (ฟังก์ชันทำงานผิด)
+[ ] Logic bug (ตรรกะผิด)
+[ ] Performance bug (ประสิทธิภาพต่ำ)
+[ ] Security bug (ความปลอดภัย)
+[ ] UI/UX bug (ปัญหาการแสดงผล)
+[ ] Database bug (ปัญหาฐานข้อมูล)
+
+### 4. ส่วนที่มี Bug (Component/Module)
+
+- [ ] Authentication (การล็อกอิน)
+- [X] Books Management (จัดการหนังสือ)
+- [ ] Members Management (จัดการสมาชิก)
+- [ ] Borrowing/Return (ยืม/คืนหนังสือ)
+- [ ] Dashboard (แดชบอร์ด)
+- [ ] Database
+- [X] API
+- [ ] Other: **\*\*\*\***\_\_\_**\*\*\*\***
+
+### 5. ขั้นตอนการสร้างซ้ำ (Steps to Reproduce)
+
+เปิดโปรแกรม Postman
+Login เพื่อรับ JWT Token ที่มีสิทธิ์ admin
+สร้าง Request ใหม่ POST http://localhost:3000/api/books พร้อมแนบ Token
+ไปที่แท็บ Body ระบุข้อมูล:
+
+json{
+  "title": "Clean Code",
+  "author": "Robert C. Martin",
+  "isbn": "9780132350884",
+  "category": "Computer",
+  "total_copies": 2,
+  "available_copies": 2,
+  "shelf_location": "A-110"
+}
+
+กดปุ่ม Send เพื่อส่ง Request
+
+### 6. พฤติกรรมที่คาดหวัง (Expected Behavior)
+ระบบควรเพิ่มหนังสือใหม่เข้าฐานข้อมูล และตอบกลับด้วย HTTP Status 201 Created พร้อม book object ใหม่
+### 7. พฤติกรรมจริง (Actual Behavior)
+Endpoint ไม่ตอบสนอง หรือคืน error ที่บ่งชี้ว่า route ยังไม่ถูก implement
+### 8. ผลกระทบ (Impact)
+ฟังก์ชันเพิ่มหนังสือใหม่เข้าระบบใช้งานไม่ได้เลย admin ไม่สามารถจัดการ catalog หนังสือได้
+### 9. ข้อมูลเพิ่มเติม (Additional Information)
+ข้อมูล Environment:
+OS: Windows
+Browser: API Testing via Postman
+Version of System: v2
+TC Ref.: TC-014
+
+
 ## เคล็ดลับการรายงาน Bug ที่ดี
 
 ✅ **ดี:**
