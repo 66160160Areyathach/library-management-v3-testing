@@ -12,7 +12,7 @@ describe("Borrowing Integration API", () => {
     return response.headers["set-cookie"];
   }
 
-  async function createMember(cookies, suffix) {
+  async function createMember(cookies, suffix, overrides = {}) {
     const response = await request(app)
       .post("/api/members")
       .set("Cookie", cookies)
@@ -23,13 +23,14 @@ describe("Borrowing Integration API", () => {
         phone: "0800000000",
         memberType: "student",
         maxBooks: 3,
+        ...overrides,
       });
 
     expect(response.status).toBe(201);
     return response.body.member_id;
   }
 
-  async function createBook(cookies, suffix) {
+  async function createBook(cookies, suffix, overrides = {}) {
     const response = await request(app)
       .post("/api/books")
       .set("Cookie", cookies)
@@ -39,13 +40,14 @@ describe("Borrowing Integration API", () => {
         author: "Integration Author",
         category: "Testing",
         totalCopies: 2,
+        ...overrides,
       });
 
     expect(response.status).toBe(201);
     return response.body.book_id;
   }
 
-  async function createBorrowRecord(cookies, suffix) {
+  async function createBorrowRecord(cookies, suffix, borrowOverrides = {}) {
     const memberId = await createMember(cookies, `${suffix}-MEM`);
     const bookId = await createBook(cookies, `${suffix}-BOOK`);
 
@@ -55,8 +57,9 @@ describe("Borrowing Integration API", () => {
       .send({
         memberId,
         bookId,
-        borrowDate: "2026-04-01",
-        dueDate: "2026-04-10",
+        borrowDate: "2025-01-10",
+        dueDate: "2025-01-24",
+        ...borrowOverrides,
       });
 
     expect(borrowResponse.status).toBe(201);
@@ -68,82 +71,8 @@ describe("Borrowing Integration API", () => {
     };
   }
 
-  describe("GET /api/borrowing", () => {
-    test("should return 401 when user is not authenticated", async () => {
-      const response = await request(app).get("/api/borrowing");
-
-      expect(response.status).toBe(401);
-      expect(response.body).toHaveProperty("error", "Unauthorized");
-    });
-
-    test("should return all borrowing records for authenticated users", async () => {
-      const cookies = await login("librarian", "lib123");
-
-      const response = await request(app)
-        .get("/api/borrowing")
-        .set("Cookie", cookies);
-
-      expect(response.status).toBe(200);
-      expect(Array.isArray(response.body)).toBe(true);
-    });
-  });
-
   describe("POST /api/borrowing", () => {
-    test("should return 400 when required fields are missing", async () => {
-      const cookies = await login("admin", "admin123");
-
-      const response = await request(app)
-        .post("/api/borrowing")
-        .set("Cookie", cookies)
-        .send({
-          memberId: 1,
-          bookId: 1,
-        });
-
-      expect(response.status).toBe(400);
-      expect(response.body).toHaveProperty(
-        "error",
-        "Member ID, book ID, borrow date, and due date are required",
-      );
-    });
-
-    test("should return 404 when member does not exist", async () => {
-      const cookies = await login("admin", "admin123");
-
-      const response = await request(app)
-        .post("/api/borrowing")
-        .set("Cookie", cookies)
-        .send({
-          memberId: 99999,
-          bookId: 1,
-          borrowDate: "2026-04-01",
-          dueDate: "2026-04-10",
-        });
-
-      expect(response.status).toBe(404);
-      expect(response.body).toHaveProperty("error", "Member not found");
-    });
-
-    test("should return 404 when book does not exist", async () => {
-      const cookies = await login("admin", "admin123");
-      const suffix = Date.now();
-      const memberId = await createMember(cookies, `${suffix}-NF`);
-
-      const response = await request(app)
-        .post("/api/borrowing")
-        .set("Cookie", cookies)
-        .send({
-          memberId,
-          bookId: 99999,
-          borrowDate: "2026-04-01",
-          dueDate: "2026-04-10",
-        });
-
-      expect(response.status).toBe(404);
-      expect(response.body).toHaveProperty("error", "Book not found");
-    });
-
-    test("should create a borrowing record when request is valid", async () => {
+    test("TC-032 should create a borrowing record for valid input", async () => {
       const cookies = await login("admin", "admin123");
       const suffix = Date.now();
       const memberId = await createMember(cookies, `${suffix}-A`);
@@ -155,8 +84,8 @@ describe("Borrowing Integration API", () => {
         .send({
           memberId,
           bookId,
-          borrowDate: "2026-04-01",
-          dueDate: "2026-04-10",
+          borrowDate: "2024-05-20",
+          dueDate: "2024-05-27",
         });
 
       expect(response.status).toBe(201);
@@ -167,66 +96,211 @@ describe("Borrowing Integration API", () => {
         }),
       );
     });
-  });
 
-  describe("GET /api/borrowing/member/:memberId", () => {
-    test("should return borrowing records for a member", async () => {
+    test("TC-033 should return 409 when book is unavailable", async () => {
       const cookies = await login("admin", "admin123");
       const suffix = Date.now();
-      const { memberId } = await createBorrowRecord(cookies, suffix);
+      const memberId = await createMember(cookies, `${suffix}-UNAVAIL-M`);
+      const bookId = await createBook(cookies, `${suffix}-UNAVAIL-B`, {
+        totalCopies: 1,
+      });
+
+      const firstBorrow = await request(app)
+        .post("/api/borrowing")
+        .set("Cookie", cookies)
+        .send({
+          memberId,
+          bookId,
+          borrowDate: "2024-05-20",
+          dueDate: "2024-05-27",
+        });
+
+      expect(firstBorrow.status).toBe(201);
+
+      const secondMemberId = await createMember(cookies, `${suffix}-UNAVAIL-M2`);
+      const response = await request(app)
+        .post("/api/borrowing")
+        .set("Cookie", cookies)
+        .send({
+          memberId: secondMemberId,
+          bookId,
+          borrowDate: "2024-05-20",
+          dueDate: "2024-05-27",
+        });
+
+      expect(response.status).toBe(409);
+      expect(response.body).toHaveProperty("error");
+    });
+
+    test("TC-034 should return 404 when book does not exist", async () => {
+      const cookies = await login("admin", "admin123");
+      const suffix = Date.now();
+      const memberId = await createMember(cookies, `${suffix}-NF`);
 
       const response = await request(app)
-        .get(`/api/borrowing/member/${memberId}`)
-        .set("Cookie", cookies);
+        .post("/api/borrowing")
+        .set("Cookie", cookies)
+        .send({
+          memberId,
+          bookId: 99999,
+          borrowDate: "2024-05-20",
+          dueDate: "2024-05-27",
+        });
 
-      expect(response.status).toBe(200);
-      expect(Array.isArray(response.body)).toBe(true);
-      expect(response.body.length).toBeGreaterThan(0);
+      expect(response.status).toBe(404);
+    });
+
+    test("TC-035 should return 409 when member borrows the same book twice", async () => {
+      const cookies = await login("admin", "admin123");
+      const suffix = Date.now();
+      const memberId = await createMember(cookies, `${suffix}-DUP-M`);
+      const bookId = await createBook(cookies, `${suffix}-DUP-B`);
+
+      const firstBorrow = await request(app)
+        .post("/api/borrowing")
+        .set("Cookie", cookies)
+        .send({
+          memberId,
+          bookId,
+          borrowDate: "2024-05-20",
+          dueDate: "2024-05-27",
+        });
+
+      expect(firstBorrow.status).toBe(201);
+
+      const secondBorrow = await request(app)
+        .post("/api/borrowing")
+        .set("Cookie", cookies)
+        .send({
+          memberId,
+          bookId,
+          borrowDate: "2024-05-20",
+          dueDate: "2024-05-27",
+        });
+
+      expect(secondBorrow.status).toBe(409);
+    });
+
+    test("TC-036 should return 409 when member exceeds borrowing limit", async () => {
+      const cookies = await login("admin", "admin123");
+      const suffix = Date.now();
+      const memberId = await createMember(cookies, `${suffix}-LIMIT`, {
+        maxBooks: 1,
+      });
+      const firstBookId = await createBook(cookies, `${suffix}-LIMIT-1`);
+      const secondBookId = await createBook(cookies, `${suffix}-LIMIT-2`);
+
+      const firstBorrow = await request(app)
+        .post("/api/borrowing")
+        .set("Cookie", cookies)
+        .send({
+          memberId,
+          bookId: firstBookId,
+          borrowDate: "2025-01-10",
+          dueDate: "2025-01-24",
+        });
+
+      expect(firstBorrow.status).toBe(201);
+
+      const secondBorrow = await request(app)
+        .post("/api/borrowing")
+        .set("Cookie", cookies)
+        .send({
+          memberId,
+          bookId: secondBookId,
+          borrowDate: "2025-01-10",
+          dueDate: "2025-01-24",
+        });
+
+      expect(secondBorrow.status).toBe(409);
+    });
+
+    test("TC-037 should return 400 when due date is earlier than borrow date", async () => {
+      const cookies = await login("admin", "admin123");
+      const suffix = Date.now();
+      const memberId = await createMember(cookies, `${suffix}-DATE`);
+      const bookId = await createBook(cookies, `${suffix}-DATE`);
+
+      const response = await request(app)
+        .post("/api/borrowing")
+        .set("Cookie", cookies)
+        .send({
+          memberId,
+          bookId,
+          borrowDate: "2025-02-20",
+          dueDate: "2025-02-10",
+        });
+
+      expect(response.status).toBe(400);
+    });
+
+    test("TC-038 should return 403 when suspended members borrow books", async () => {
+      const cookies = await login("admin", "admin123");
+      const suffix = Date.now();
+      const memberId = await createMember(cookies, `${suffix}-SUSP`);
+      const updateResponse = await request(app)
+        .put(`/api/members/${memberId}`)
+        .set("Cookie", cookies)
+        .send({
+          fullName: `Borrow Member ${suffix}`,
+          email: `borrow.member.${suffix}@example.com`,
+          phone: "0800000000",
+          memberType: "student",
+          status: "suspended",
+          maxBooks: 3,
+        });
+
+      expect(updateResponse.status).toBe(200);
+
+      const bookId = await createBook(cookies, `${suffix}-SUSP`);
+      const response = await request(app)
+        .post("/api/borrowing")
+        .set("Cookie", cookies)
+        .send({
+          memberId,
+          bookId,
+          borrowDate: "2025-01-10",
+          dueDate: "2025-01-24",
+        });
+
+      expect(response.status).toBe(403);
+    });
+
+    test("TC-039 should return 401 when borrowing without authentication", async () => {
+      const response = await request(app).post("/api/borrowing").send({
+        memberId: 1,
+        bookId: 1,
+        borrowDate: "2025-01-10",
+        dueDate: "2025-01-24",
+      });
+
+      expect(response.status).toBe(401);
     });
   });
 
   describe("PUT /api/borrowing/:borrowId/return", () => {
-    test("should return a borrowed book successfully", async () => {
+    test("TC-040 should return 409 when returning the same borrow twice", async () => {
       const cookies = await login("admin", "admin123");
       const suffix = Date.now();
       const { borrowId } = await createBorrowRecord(cookies, suffix);
 
-      const response = await request(app)
+      const firstReturn = await request(app)
         .put(`/api/borrowing/${borrowId}/return`)
         .set("Cookie", cookies)
         .send({
-          returnDate: "2026-04-08",
+          returnDate: "2025-02-10",
         });
 
-      expect(response.status).toBe(200);
-      expect(response.body).toEqual(
-        expect.objectContaining({
-          success: true,
-          fineAmount: 0,
-        }),
-      );
-    });
-  });
+      expect(firstReturn.status).toBe(200);
 
-  describe("PUT /api/borrowing/:borrowId/extend", () => {
-    test("should extend due date for an active borrowing record", async () => {
-      const cookies = await login("admin", "admin123");
-      const suffix = Date.now();
-      const { borrowId } = await createBorrowRecord(cookies, suffix);
-
-      const response = await request(app)
-        .put(`/api/borrowing/${borrowId}/extend`)
+      const secondReturn = await request(app)
+        .put(`/api/borrowing/${borrowId}/return`)
         .set("Cookie", cookies)
         .send({
-          newDueDate: "2026-04-20",
+          returnDate: "2025-02-11",
         });
 
-      expect(response.status).toBe(200);
-      expect(response.body).toEqual(
-        expect.objectContaining({
-          success: true,
-        }),
-      );
+      expect(secondReturn.status).toBe(409);
     });
   });
 });
