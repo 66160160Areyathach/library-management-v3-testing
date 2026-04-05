@@ -30,9 +30,9 @@
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">33.33% </span>
+                <span class="strong">0% </span>
                 <span class="quiet">Branches</span>
-                <span class='fraction'>1/3</span>
+                <span class='fraction'>0/3</span>
             </div>
         
             
@@ -254,11 +254,11 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -353,12 +353,12 @@ const Borrowing = {
     );
   },
 &nbsp;
-  async checkIfBookBorrowed(bookId) {
-    const result = await getOne(
+<span class="fstat-no" title="function not covered" >  as</span>ync checkIfBookBorrowed(bookId) {
+    const result = <span class="cstat-no" title="statement not covered" >await getOne(</span>
       'SELECT COUNT(*) as count FROM borrowing WHERE book_id = ? AND (status = "borrowed" OR status = "overdue")',
       [bookId],
     );
-    return result ? result.count &gt; 0 : <span class="branch-1 cbranch-no" title="branch not covered" >false;</span>
+<span class="cstat-no" title="statement not covered" >    return result ? result.count &gt; 0 : false;</span>
   },
 };
 &nbsp;

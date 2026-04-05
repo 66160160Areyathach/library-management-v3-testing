@@ -61,7 +61,7 @@
             </div>
         </template>
     </div>
-    <div class='status-line medium'></div>
+    <div class='status-line low'></div>
     <pre><table class="coverage">
 <tr><td class="line-count quiet"><a name='L1'></a><a href='#L1'>1</a>
 <a name='L2'></a><a href='#L2'>2</a>
@@ -178,17 +178,25 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">18x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">9x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -277,23 +285,30 @@
 const { getOne, getAll, run } = require("./query");
 &nbsp;
 const Book = {
-  async findById(bookId) {
-    return getOne("SELECT book_id as id, * FROM books WHERE book_id = ?", [
+<span class="fstat-no" title="function not covered" >  as</span>ync findById(bookId) {
+<span class="cstat-no" title="statement not covered" >    return getOne("SELECT book_id as id, * FROM books WHERE book_id = ?", [</span>
       bookId,
     ]);
   },
 &nbsp;
-  async findByIsbn(isbn) {
-    return getOne("SELECT * FROM books WHERE isbn = ?", [isbn]);
+<span class="fstat-no" title="function not covered" >  as</span>ync findByIsbn(isbn) {
+<span class="cstat-no" title="statement not covered" >    return getOne("SELECT * FROM books WHERE isbn = ?", [isbn]);</span>
   },
 &nbsp;
-  async getAll() {
-    return getAll("SELECT book_id as id, * FROM books ORDER BY title");
+<span class="fstat-no" title="function not covered" >  as</span>ync getAll() {
+<span class="cstat-no" title="statement not covered" >    return getAll("SELECT book_id as id, * FROM books ORDER BY title");</span>
   },
 &nbsp;
-  async search(query) {
-    const searchTerm = `%${query}%`;
-    return getAll(
+<span class="fstat-no" title="function not covered" >  as</span>ync getByGenre(genre) {
+<span class="cstat-no" title="statement not covered" >    return getAll(</span>
+      "SELECT book_id as id, * FROM books WHERE category = ? ORDER BY title",
+      [genre],
+    );
+  },
+&nbsp;
+<span class="fstat-no" title="function not covered" >  as</span>ync search(query) {
+    const searchTerm = <span class="cstat-no" title="statement not covered" >`%${query}%`;</span>
+<span class="cstat-no" title="statement not covered" >    return getAll(</span>
       "SELECT book_id as id, * FROM books WHERE title LIKE ? OR author LIKE ? OR isbn LIKE ? ORDER BY title",
       [searchTerm, searchTerm, searchTerm],
     );

@@ -37,9 +37,9 @@
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">100% </span>
+                <span class="strong">0% </span>
                 <span class="quiet">Functions</span>
-                <span class='fraction'>2/2</span>
+                <span class='fraction'>0/2</span>
             </div>
         
             
@@ -125,8 +125,8 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">// Authentication middleware
 &nbsp;
-function requireAuth(req, res, next) {
-  if (!req.session || !req.session.user_id) {
+function <span class="fstat-no" title="function not covered" >requireAuth(</span>req, res, next) {
+<span class="cstat-no" title="statement not covered" >  if (!req.session || !req.session.user_id) {</span>
     // If API call, return 401
     if (req.originalUrl.startsWith("/api/")) {
       return res.status(401).json({ error: "Unauthorized" });
@@ -134,7 +134,7 @@ function requireAuth(req, res, next) {
     // Otherwise redirect to login
     return res.redirect("/login");
   }
-  next();
+<span class="cstat-no" title="statement not covered" >  next();</span>
 }
 &nbsp;
 function requireAdmin(req, res, next) {
@@ -146,7 +146,7 @@ function requireAdmin(req, res, next) {
     return res.status(403).json({ error: "Forbidden - Admin access required" });
   }
 &nbsp;
-  next();
+<span class="cstat-no" title="statement not covered" >  next();</span>
 }
 &nbsp;
 module.exports = {

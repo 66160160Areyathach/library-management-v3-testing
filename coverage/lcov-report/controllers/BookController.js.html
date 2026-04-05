@@ -61,7 +61,7 @@
             </div>
         </template>
     </div>
-    <div class='status-line medium'></div>
+    <div class='status-line low'></div>
     <pre><table class="coverage">
 <tr><td class="line-count quiet"><a name='L1'></a><a href='#L1'>1</a>
 <a name='L2'></a><a href='#L2'>2</a>
@@ -236,9 +236,12 @@
 <span class="cline-any cline-yes">9x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">12x</span>
 <span class="cline-any cline-yes">12x</span>
@@ -256,26 +259,28 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">2x</span>
-<span class="cline-any cline-yes">2x</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">2x</span>
-<span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">27x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -289,6 +294,8 @@
 <span class="cline-any cline-yes">27x</span>
 <span class="cline-any cline-yes">8x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -392,19 +399,27 @@ const Book = require("../models/Book");
 const Borrowing = require("../models/Borrowing");
 &nbsp;
 const BookController = {
-  async getAll(req, res) {
-    try {
-      const books = await Book.getAll();
-      res.json(books);
+<span class="fstat-no" title="function not covered" >  as</span>ync getAll(req, res) {
+<span class="cstat-no" title="statement not covered" >    try {</span>
+      const { genre } = <span class="cstat-no" title="statement not covered" >req.query;</span>
+&nbsp;
+      let books;
+<span class="cstat-no" title="statement not covered" >      if (genre) {</span>
+<span class="cstat-no" title="statement not covered" >        books = await Book.getByGenre(genre);</span>
+      } else {
+<span class="cstat-no" title="statement not covered" >        books = await Book.getAll();</span>
+      }
+&nbsp;
+<span class="cstat-no" title="statement not covered" >      res.json(books);</span>
     } catch (error) {
 <span class="cstat-no" title="statement not covered" >      res.status(500).json({ error: error.message });</span>
     }
   },
 &nbsp;
-  async getById(req, res) {
-    try {
-      const { id } = req.params;
-      const book = await Book.findById(id);
+<span class="fstat-no" title="function not covered" >  as</span>ync getById(req, res) {
+<span class="cstat-no" title="statement not covered" >    try {</span>
+      const { id } = <span class="cstat-no" title="statement not covered" >req.params;</span>
+      const book = <span class="cstat-no" title="statement not covered" >await Book.findById(id);</span>
 &nbsp;
       <span class="missing-if-branch" title="else path not taken" >E</span>if (!book) {
         return res.status(404).json({ error: "Book not found" });
@@ -420,23 +435,23 @@ const BookController = {
     }
   },
 &nbsp;
-  async search(req, res) {
-    try {
-      const { q } = req.query;
+<span class="fstat-no" title="function not covered" >  as</span>ync search(req, res) {
+<span class="cstat-no" title="statement not covered" >    try {</span>
+      const { q } = <span class="cstat-no" title="statement not covered" >req.query;</span>
 &nbsp;
-      if (!q) {
-        return res.status(400).json({ error: "Search query is required" });
+<span class="cstat-no" title="statement not covered" >      if (!q) {</span>
+<span class="cstat-no" title="statement not covered" >        return res.status(400).json({ error: "Search query is required" });</span>
       }
 &nbsp;
-      const books = await Book.search(q);
-      res.json(books);
+      const books = <span class="cstat-no" title="statement not covered" >await Book.search(q);</span>
+<span class="cstat-no" title="statement not covered" >      res.json(books);</span>
     } catch (error) {
 <span class="cstat-no" title="statement not covered" >      res.status(500).json({ error: error.message });</span>
     }
   },
 &nbsp;
-  async create(req, res) {
-    try {
+<span class="fstat-no" title="function not covered" >  as</span>ync create(req, res) {
+<span class="cstat-no" title="statement not covered" >    try {</span>
       const {
         isbn,
         title,
@@ -446,10 +461,10 @@ const BookController = {
         category,
         totalCopies,
         shelfLocation,
-      } = req.body;
+      } = <span class="cstat-no" title="statement not covered" >req.body;</span>
 &nbsp;
-      if (!title || !author || !totalCopies) {
-        return res
+<span class="cstat-no" title="statement not covered" >      if (!title || !author || !totalCopies) {</span>
+<span class="cstat-no" title="statement not covered" >        return res</span>
           .status(400)
           .json({ error: "Title, author, and total copies are required" });
       }

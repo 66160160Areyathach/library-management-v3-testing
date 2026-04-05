@@ -23,30 +23,30 @@
         <div class='clearfix'>
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">86.95% </span>
+                <span class="strong">56.52% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>20/23</span>
+                <span class='fraction'>13/23</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">83.33% </span>
+                <span class="strong">50% </span>
                 <span class="quiet">Branches</span>
-                <span class='fraction'>10/12</span>
+                <span class='fraction'>6/12</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">100% </span>
+                <span class="strong">25% </span>
                 <span class="quiet">Functions</span>
-                <span class='fraction'>4/4</span>
+                <span class='fraction'>1/4</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">86.95% </span>
+                <span class="strong">56.52% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>20/23</span>
+                <span class='fraction'>13/23</span>
             </div>
         
             
@@ -61,7 +61,7 @@
             </div>
         </template>
     </div>
-    <div class='status-line high'></div>
+    <div class='status-line medium'></div>
     <pre><table class="coverage">
 <tr><td class="line-count quiet"><a name='L1'></a><a href='#L1'>1</a>
 <a name='L2'></a><a href='#L2'>2</a>
@@ -201,16 +201,16 @@ const AuthController = {
     try {
       const { username, password } = req.body;
 &nbsp;
-      if (!username || !password) {
-        return res
+      <span class="missing-if-branch" title="if path not taken" >I</span>if (!username || !password) {
+<span class="cstat-no" title="statement not covered" >        return res</span>
           .status(400)
           .json({ error: "Username and password are required" });
       }
 &nbsp;
       const user = await User.findByUsername(username);
 &nbsp;
-      if (!user || user.password !== password) {
-        return res.status(401).json({ error: "Invalid username or password" });
+      <span class="missing-if-branch" title="if path not taken" >I</span>if (!user || user.password !== password) {
+<span class="cstat-no" title="statement not covered" >        return res.status(401).json({ error: "Invalid username or password" });</span>
       }
 &nbsp;
       // Set session
@@ -234,21 +234,21 @@ const AuthController = {
     }
   },
 &nbsp;
-  async logout(req, res) {
-    req.session.destroy((err) =&gt; {
-      <span class="missing-if-branch" title="if path not taken" >I</span>if (err) {
+<span class="fstat-no" title="function not covered" >  as</span>ync logout(req, res) {
+<span class="cstat-no" title="statement not covered" >    req.session.destroy(<span class="fstat-no" title="function not covered" >(e</span>rr) =&gt; {</span>
+<span class="cstat-no" title="statement not covered" >      if (err) {</span>
 <span class="cstat-no" title="statement not covered" >        return res.status(500).json({ error: "Logout failed" });</span>
       }
-      res.json({ success: true, message: "Logout successful" });
+<span class="cstat-no" title="statement not covered" >      res.json({ success: true, message: "Logout successful" });</span>
     });
   },
 &nbsp;
-  async getCurrentUser(req, res) {
-    <span class="missing-if-branch" title="if path not taken" >I</span>if (!req.session.user_id) {
+<span class="fstat-no" title="function not covered" >  as</span>ync getCurrentUser(req, res) {
+<span class="cstat-no" title="statement not covered" >    if (!req.session.user_id) {</span>
 <span class="cstat-no" title="statement not covered" >      return res.status(401).json({ error: "Not authenticated" });</span>
     }
 &nbsp;
-    res.json({
+<span class="cstat-no" title="statement not covered" >    res.json({</span>
       user_id: req.session.user_id,
       username: req.session.username,
       full_name: req.session.full_name,
