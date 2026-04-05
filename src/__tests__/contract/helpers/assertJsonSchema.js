@@ -24,7 +24,6 @@ function validateSchema(value, schema, path = "") {
   if (value === null && schema.nullable) {
     return errors;
   }
-
   if (schema.type) {
     const actualType = getType(value);
     if (actualType !== schema.type) {
