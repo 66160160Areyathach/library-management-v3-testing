@@ -5,7 +5,15 @@ const Borrowing = require("../models/Borrowing");
 const BookController = {
   async getAll(req, res) {
     try {
-      const books = await Book.getAll();
+      const { genre } = req.query;
+
+      let books;
+      if (genre) {
+        books = await Book.getByGenre(genre);
+      } else {
+        books = await Book.getAll();
+      }
+
       res.json(books);
     } catch (error) {
       res.status(500).json({ error: error.message });
