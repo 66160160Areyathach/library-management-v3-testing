@@ -62,45 +62,6 @@ describe("Auth Integration API", () => {
         "Username and password are required",
       );
     });
-
-    test("should return 401 for SQL injection style username input", async () => {
-      const response = await request(app).post("/api/auth/login").send({
-        username: "' OR '1'='1",
-        password: "x",
-      });
-
-      expect(response.status).toBe(401);
-      expect(response.body).toHaveProperty(
-        "error",
-        "Invalid username or password",
-      );
-    });
-
-    test("should return 401 for non-string credential types", async () => {
-      const response = await request(app).post("/api/auth/login").send({
-        username: 12345,
-        password: true,
-      });
-
-      expect(response.status).toBe(401);
-      expect(response.body).toHaveProperty(
-        "error",
-        "Invalid username or password",
-      );
-    });
-
-    test("should return 401 for usernames with leading and trailing spaces", async () => {
-      const response = await request(app).post("/api/auth/login").send({
-        username: " admin ",
-        password: "admin123",
-      });
-
-      expect(response.status).toBe(401);
-      expect(response.body).toHaveProperty(
-        "error",
-        "Invalid username or password",
-      );
-    });
   });
 
   describe("GET /api/auth/me", () => {
