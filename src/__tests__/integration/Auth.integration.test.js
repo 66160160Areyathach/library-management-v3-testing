@@ -3,7 +3,7 @@ const app = require("../../app");
 
 describe("Auth Integration API", () => {
   describe("POST /api/auth/login", () => {
-    test("should login successfully with valid admin credentials", async () => {
+    test("TC-001 should return 200 with user info for valid admin credentials", async () => {
       const response = await request(app).post("/api/auth/login").send({
         username: "admin",
         password: "admin123",
@@ -25,10 +25,10 @@ describe("Auth Integration API", () => {
       expect(response.headers["set-cookie"]).toBeDefined();
     });
 
-    test("should return 401 for invalid password", async () => {
+    test("TC-002 should return 401 for invalid password", async () => {
       const response = await request(app).post("/api/auth/login").send({
         username: "admin",
-        password: "wrongpassword",
+        password: "wrongpass",
       });
 
       expect(response.status).toBe(401);
@@ -38,23 +38,18 @@ describe("Auth Integration API", () => {
       );
     });
 
-    test("should return 401 for non-existent username", async () => {
+    test("TC-003 should return 400 when password is empty", async () => {
       const response = await request(app).post("/api/auth/login").send({
-        username: "notfound-user",
-        password: "password",
+        username: "testuser",
+        password: "",
       });
 
-      expect(response.status).toBe(401);
-      expect(response.body).toHaveProperty(
-        "error",
-        "Invalid username or password",
-      );
+      expect(response.status).toBe(400);
+      expect(response.body).toHaveProperty("error");
     });
 
-    test("should return 400 when username or password is missing", async () => {
-      const response = await request(app).post("/api/auth/login").send({
-        username: "admin",
-      });
+    test("TC-004 should return 400 when no fields are sent", async () => {
+      const response = await request(app).post("/api/auth/login").send({});
 
       expect(response.status).toBe(400);
       expect(response.body).toHaveProperty(
@@ -62,76 +57,41 @@ describe("Auth Integration API", () => {
         "Username and password are required",
       );
     });
-  });
 
-  describe("GET /api/auth/me", () => {
-    test("should return current user info when authenticated", async () => {
-      const loginResponse = await request(app).post("/api/auth/login").send({
-        username: "librarian",
-        password: "lib123",
+    test("TC-005 should return 401 for SQL injection payload", async () => {
+      const response = await request(app).post("/api/auth/login").send({
+        username: "'OR'1'='1",
+        password: "x",
       });
-
-      const cookies = loginResponse.headers["set-cookie"];
-      const response = await request(app)
-        .get("/api/auth/me")
-        .set("Cookie", cookies);
-
-      expect(response.status).toBe(200);
-      expect(response.body).toEqual(
-        expect.objectContaining({
-          user_id: expect.any(Number),
-          username: "librarian",
-          full_name: expect.any(String),
-          role: "librarian",
-        }),
-      );
-    });
-
-    test("should return 401 when not authenticated", async () => {
-      const response = await request(app).get("/api/auth/me");
 
       expect(response.status).toBe(401);
-      expect(response.body).toHaveProperty("error", "Unauthorized");
-    });
-  });
-
-  describe("POST /api/auth/logout", () => {
-    test("should logout successfully after login", async () => {
-      const loginResponse = await request(app).post("/api/auth/login").send({
-        username: "admin",
-        password: "admin123",
-      });
-
-      const cookies = loginResponse.headers["set-cookie"];
-      const logoutResponse = await request(app)
-        .post("/api/auth/logout")
-        .set("Cookie", cookies);
-
-      expect(logoutResponse.status).toBe(200);
-      expect(logoutResponse.body).toEqual(
-        expect.objectContaining({
-          success: true,
-          message: "Logout successful",
-        }),
+      expect(response.body).toHaveProperty(
+        "error",
+        "Invalid username or password",
       );
     });
 
-    test("should block access to current user info after logout", async () => {
-      const loginResponse = await request(app).post("/api/auth/login").send({
-        username: "admin",
-        password: "admin123",
+    test("TC-006 should return 400 when username is excessively long", async () => {
+      const response = await request(app).post("/api/auth/login").send({
+        username: "a".repeat(300),
+        password: "x",
       });
 
-      const cookies = loginResponse.headers["set-cookie"];
+      expect(response.status).toBe(400);
+      expect(response.body).toHaveProperty("error");
+    });
 
-      await request(app).post("/api/auth/logout").set("Cookie", cookies);
+    test("TC-007 should return 429 after repeated brute-force attempts", async () => {
+      let lastResponse;
 
-      const meResponse = await request(app)
-        .get("/api/auth/me")
-        .set("Cookie", cookies);
+      for (let i = 0; i < 50; i += 1) {
+        lastResponse = await request(app).post("/api/auth/login").send({
+          username: "admin",
+          password: "wrongpass",
+        });
+      }
 
-      expect(meResponse.status).toBe(401);
-      expect(meResponse.body).toHaveProperty("error", "Unauthorized");
+      expect(lastResponse.status).toBe(429);
     });
   });
 });
