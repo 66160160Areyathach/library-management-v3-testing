@@ -1,44 +1,18 @@
 # Library Management System v2 - Node.js Edition
 
-ระบบจัดการห้องสมุดแบบง่ายๆ สำหรับการเรียนการสอนวิชา Software Testing and Evaluation
+ระบบจัดการห้องสมุดสำหรับการเรียนการสอนวิชา Software Testing and Evaluation (เขียนด้วย Node.js + Express + SQLite)
 
-เขียนด้วย: **Node.js + Express + SQLite**
+---
 
-## 🎯 วัตถุประสงค์
+## 🚀 วิธีการติดตั้งและรันระบบ (How to Run)
 
-ระบบนี้ออกแบบมาเพื่อใช้ในการเรียนการสอน โดยมี **bugs ที่ฝังไว้อย่างตั้งใจ** เพื่อให้ผู้เรียนฝึกฝน:
+คุณสามารถเลือกรันระบบได้ 2 วิธีหลักๆ ดังนี้:
 
-- การหา bugs ด้วยเทคนิคต่างๆ
-- การเขียน test cases
-- การทดสอบซอฟต์แวร์
-- การเขียน bug reports
-- การใช้ Jest สำหรับ unit testing
-- การใช้ Playwright สำหรับ integration testing
+### 🐳 วิธีที่ 1: รันผ่าน Docker (แนะนำและง่ายที่สุด)
 
-## 📋 ข้อมูลระบบ
-
-- **Backend:** Node.js + Express
-- **Database:** SQLite
-- **Frontend:** HTML + Bootstrap + JavaScript
-- **Session:** Express Session
-- **Testing:** Jest, Supertest, Playwright
-
-## 🚀 การติดตั้งและรันระบบ
-
-### วิธีที่ 1: ใช้ Docker (แนะนำ)
-
-#### ข้อกำหนดเบื้องต้น
-
-- Docker
-- Docker Compose
-
-#### ขั้นตอน
-
-1. **Clone หรือ download โปรเจค**
-
-2. **เปิด Terminal/Command Prompt ที่โฟลเดอร์โปรเจค**
-
-3. **รันคำสั่ง:**
+1. ตรวจสอบให้แน่ใจว่าติดตั้ง **Docker** และ **Docker Compose** แล้ว
+2. เปิด Terminal / Command Prompt ที่โฟลเดอร์โปรเจกต์
+3. รันคำสั่งเพื่อสร้างและเปิดระบบ:
 
 ```bash
 docker-compose up -d
