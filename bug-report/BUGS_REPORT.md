@@ -117,7 +117,7 @@
     วันที่พบ bug: 5/4/2569
     ลำดับที่ของ bug: 002
 ### ข้อมูลเกี่ยวกับ Bug
-1. ระบบไม่ Validate ความยาว Input — Username 300 ตัวอักษรผ่านได้ คืน 401 แทน 400
+### 1. ระบบไม่ Validate ความยาว Input — Username 300 ตัวอักษรผ่านได้ คืน 401 แทน 400
 API and Integration Testing Focus - ทดสอบ Backend API อย่างถูกต้อง:
 
 ### 2. ความสำคัญ (Severity)
@@ -179,36 +179,35 @@ TC Ref.: TC-006
 
 ### BUG-03
 ### ข้อมูลเกี่ยวกับ Bug
-    1. ไม่มี Rate Limiting บน Login Endpoint เสี่ยงต่อ Brute Force Attack
+### 1. ไม่มี Rate Limiting บน Login Endpoint เสี่ยงต่อ Brute Force Attack
     API and Integration Testing Focus - ทดสอบ Backend API อย่างถูกต้อง:
 ### 2. ความสำคัญ (Severity)
-
- Critical - ระบบไม่ทำงาน/สูญเสียข้อมูล
- Major - ฟังก์ชันหลักทำงานผิด
- Medium - ฟังก์ชันรองทำงานผิดเล็กน้อย
- Minor - ปัญหาด้านการแสดงผล/UI
- Trivial - ปัญหาเล็กน้อย
+[X] Critical - ระบบไม่ทำงาน/สูญเสียข้อมูล
+[ ] Major - ฟังก์ชันหลักทำงานผิด
+[ ] Medium - ฟังก์ชันรองทำงานผิดเล็กน้อย
+[ ] Minor - ปัญหาด้านการแสดงผล/UI
+[ ] Trivial - ปัญหาเล็กน้อย
 
 
 ### 3. ลักษณะของ Bug (Type)
 
- Functional bug (ฟังก์ชันทำงานผิด)
- Logic bug (ตรรกะผิด)
- Performance bug (ประสิทธิภาพต่ำ)
- Security bug (ความปลอดภัย)
- UI/UX bug (ปัญหาการแสดงผล)
- Database bug (ปัญหาฐานข้อมูล)
+[ ] Functional bug (ฟังก์ชันทำงานผิด)
+[ ] Logic bug (ตรรกะผิด)
+[ ] Performance bug (ประสิทธิภาพต่ำ)
+[X] Security bug (ความปลอดภัย)
+[ ] UI/UX bug (ปัญหาการแสดงผล)
+[ ] Database bug (ปัญหาฐานข้อมูล)
 
 ### 4. ส่วนที่มี Bug (Component/Module)
 
- Authentication (การล็อกอิน)
- Books Management (จัดการหนังสือ)
- Members Management (จัดการสมาชิก)
- Borrowing/Return (ยืม/คืนหนังสือ)
- Dashboard (แดชบอร์ด)
- Database
- API
-
+- [X] Authentication (การล็อกอิน)
+- [ ] Books Management (จัดการหนังสือ)
+- [ ] Members Management (จัดการสมาชิก)
+- [ ] Borrowing/Return (ยืม/คืนหนังสือ)
+- [ ] Dashboard (แดชบอร์ด)
+- [ ] Database
+- [X] API
+- [ ] Other: **\*\*\*\***\_\_\_**\*\*\*\***
 
 ### 5. ขั้นตอนการสร้างซ้ำ (Steps to Reproduce)
 
@@ -234,36 +233,35 @@ TC Ref.: TC-007
 
 ### BUG-04
 ### ข้อมูลเกี่ยวกับ Bug
-    1. ระบบยอมรับ Invalid Token คืน 200 แทน 401 ข้อมูลหนังสือหลุดสู่ผู้ไม่มีสิทธิ์
+### 1. ระบบยอมรับ Invalid Token คืน 200 แทน 401 ข้อมูลหนังสือหลุดสู่ผู้ไม่มีสิทธิ์
 API and Integration Testing Focus - ทดสอบ Backend API อย่างถูกต้อง:
 ### 2. ความสำคัญ (Severity)
-
- Critical - ระบบไม่ทำงาน/สูญเสียข้อมูล
- Major - ฟังก์ชันหลักทำงานผิด
- Medium - ฟังก์ชันรองทำงานผิดเล็กน้อย
- Minor - ปัญหาด้านการแสดงผล/UI
- Trivial - ปัญหาเล็กน้อย
+[ ] Critical - ระบบไม่ทำงาน/สูญเสียข้อมูล
+[X] Major - ฟังก์ชันหลักทำงานผิด
+[ ] Medium - ฟังก์ชันรองทำงานผิดเล็กน้อย
+[ ] Minor - ปัญหาด้านการแสดงผล/UI
+[ ] Trivial - ปัญหาเล็กน้อย
 
 
 ### 3. ลักษณะของ Bug (Type)
 
- Functional bug (ฟังก์ชันทำงานผิด)
- Logic bug (ตรรกะผิด)
- Performance bug (ประสิทธิภาพต่ำ)
- Security bug (ความปลอดภัย)
- UI/UX bug (ปัญหาการแสดงผล)
- Database bug (ปัญหาฐานข้อมูล)
+[ ] Functional bug (ฟังก์ชันทำงานผิด)
+[ ] Logic bug (ตรรกะผิด)
+[ ] Performance bug (ประสิทธิภาพต่ำ)
+[X] Security bug (ความปลอดภัย)
+[ ] UI/UX bug (ปัญหาการแสดงผล)
+[ ] Database bug (ปัญหาฐานข้อมูล)
 
 ### 4. ส่วนที่มี Bug (Component/Module)
 
- Authentication (การล็อกอิน)
- Books Management (จัดการหนังสือ)
- Members Management (จัดการสมาชิก)
- Borrowing/Return (ยืม/คืนหนังสือ)
- Dashboard (แดชบอร์ด)
- Database
- API
-
+- [ ] Authentication (การล็อกอิน)
+- [ ] Books Management (จัดการหนังสือ)
+- [ ] Members Management (จัดการสมาชิก)
+- [ ] Borrowing/Return (ยืม/คืนหนังสือ)
+- [ ] Dashboard (แดชบอร์ด)
+- [ ] Database
+- [X] API
+- [ ] Other: **\*\*\*\***\_\_\_**\*\*\*\***
 
 ### 5. ขั้นตอนการสร้างซ้ำ (Steps to Reproduce)
 
@@ -289,36 +287,35 @@ TC Ref.: TC-010
 
 ### BUG-05
 ### ข้อมูลเกี่ยวกับ Bug
-    1. GET /api/books ไม่บังคับ Token คืน 200 โดยไม่มีการ Authenticate
+### 1. GET /api/books ไม่บังคับ Token คืน 200 โดยไม่มีการ Authenticate
 API and Integration Testing Focus - ทดสอบ Backend API อย่างถูกต้อง:
 ### 2. ความสำคัญ (Severity)
-
- Critical - ระบบไม่ทำงาน/สูญเสียข้อมูล
- Major - ฟังก์ชันหลักทำงานผิด
- Medium - ฟังก์ชันรองทำงานผิดเล็กน้อย
- Minor - ปัญหาด้านการแสดงผล/UI
- Trivial - ปัญหาเล็กน้อย
+[ ] Critical - ระบบไม่ทำงาน/สูญเสียข้อมูล
+[X] Major - ฟังก์ชันหลักทำงานผิด
+[ ] Medium - ฟังก์ชันรองทำงานผิดเล็กน้อย
+[ ] Minor - ปัญหาด้านการแสดงผล/UI
+[ ] Trivial - ปัญหาเล็กน้อย
 
 
 ### 3. ลักษณะของ Bug (Type)
 
- Functional bug (ฟังก์ชันทำงานผิด)
- Logic bug (ตรรกะผิด)
- Performance bug (ประสิทธิภาพต่ำ)
- Security bug (ความปลอดภัย)
- UI/UX bug (ปัญหาการแสดงผล)
- Database bug (ปัญหาฐานข้อมูล)
+[ ] Functional bug (ฟังก์ชันทำงานผิด)
+[ ] Logic bug (ตรรกะผิด)
+[ ] Performance bug (ประสิทธิภาพต่ำ)
+[X] Security bug (ความปลอดภัย)
+[ ] UI/UX bug (ปัญหาการแสดงผล)
+[ ] Database bug (ปัญหาฐานข้อมูล)
 
 ### 4. ส่วนที่มี Bug (Component/Module)
 
- Authentication (การล็อกอิน)
- Books Management (จัดการหนังสือ)
- Members Management (จัดการสมาชิก)
- Borrowing/Return (ยืม/คืนหนังสือ)
- Dashboard (แดชบอร์ด)
- Database
- API
-
+- [ ] Authentication (การล็อกอิน)
+- [X] Books Management (จัดการหนังสือ)
+- [ ] Members Management (จัดการสมาชิก)
+- [ ] Borrowing/Return (ยืม/คืนหนังสือ)
+- [ ] Dashboard (แดชบอร์ด)
+- [ ] Database
+- [X] API
+- [ ] Other: **\*\*\*\***\_\_\_**\*\*\*\***
 
 ### 5. ขั้นตอนการสร้างซ้ำ (Steps to Reproduce)
 
@@ -341,7 +338,62 @@ Browser: API Testing via Postman
 Version of System: v2
 TC Ref.: TC-011
 
+BUG-06
+ข้อมูลพื้นฐาน
+ชื่อ/ID นิสิต: 66160018
+วันที่พบ bug: 5/4/2569
+ลำดับที่ของ bug: 006
+ข้อมูลเกี่ยวกับ Bug
+1. Filter ?available=true ไม่ทำงาน คืนหนังสือที่หมด Stock รวมด้วย
+API and Integration Testing Focus - ทดสอบ Backend API อย่างถูกต้อง:
+### 2. ความสำคัญ (Severity)
+[ ] Critical - ระบบไม่ทำงาน/สูญเสียข้อมูล
+[ ] Major - ฟังก์ชันหลักทำงานผิด
+[X] Medium - ฟังก์ชันรองทำงานผิดเล็กน้อย
+[ ] Minor - ปัญหาด้านการแสดงผล/UI
+[ ] Trivial - ปัญหาเล็กน้อย
 
+
+### 3. ลักษณะของ Bug (Type)
+
+[ ] Functional bug (ฟังก์ชันทำงานผิด)
+[X] Logic bug (ตรรกะผิด)
+[ ] Performance bug (ประสิทธิภาพต่ำ)
+[ ] Security bug (ความปลอดภัย)
+[ ] UI/UX bug (ปัญหาการแสดงผล)
+[ ] Database bug (ปัญหาฐานข้อมูล)
+
+### 4. ส่วนที่มี Bug (Component/Module)
+
+- [ ] Authentication (การล็อกอิน)
+- [X] Books Management (จัดการหนังสือ)
+- [ ] Members Management (จัดการสมาชิก)
+- [ ] Borrowing/Return (ยืม/คืนหนังสือ)
+- [ ] Dashboard (แดชบอร์ด)
+- [ ] Database
+- [X] API
+- [ ] Other: **\*\*\*\***\_\_\_**\*\*\*\***
+
+### 5. ขั้นตอนการสร้างซ้ำ (Steps to Reproduce)
+
+เปิดโปรแกรม Postman
+Login เพื่อรับ JWT Token ที่ถูกต้อง
+สร้าง Request ใหม่ GET http://localhost:3000/api/books?available=true พร้อมแนบ Token
+กดปุ่ม Send และตรวจสอบรายการหนังสือใน Response
+
+### 6. พฤติกรรมที่คาดหวัง (Expected Behavior)
+ระบบควรกรองเฉพาะหนังสือที่มี available_copies > 0 และตอบกลับด้วย HTTP Status 200 OK
+### 7. พฤติกรรมจริง (Actual Behavior)
+ระบบคืนรายการหนังสือ ทั้งหมด รวมถึงหนังสือที่ available_copies = 0 (หมด stock) ด้วย
+### 8. ผลกระทบ (Impact)
+ผู้ใช้งานเห็นหนังสือที่ไม่สามารถยืมได้ในรายการ ทำให้ UX สับสนและไม่ตรงกับ business logic
+### 9. ข้อมูลเพิ่มเติม (Additional Information)
+ข้อมูล Environment:
+
+OS: Windows
+Browser: API Testing via Postman
+Version of System: v2
+TC Ref.: TC-013
 ## เคล็ดลับการรายงาน Bug ที่ดี
 
 ✅ **ดี:**
