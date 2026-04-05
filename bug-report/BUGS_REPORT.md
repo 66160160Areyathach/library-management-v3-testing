@@ -232,6 +232,61 @@ Version of System: v2
 TC Ref.: TC-007
 
 
+### BUG-04
+### ข้อมูลเกี่ยวกับ Bug
+    1. ระบบยอมรับ Invalid Token คืน 200 แทน 401 ข้อมูลหนังสือหลุดสู่ผู้ไม่มีสิทธิ์
+API and Integration Testing Focus - ทดสอบ Backend API อย่างถูกต้อง:
+### 2. ความสำคัญ (Severity)
+
+ Critical - ระบบไม่ทำงาน/สูญเสียข้อมูล
+ Major - ฟังก์ชันหลักทำงานผิด
+ Medium - ฟังก์ชันรองทำงานผิดเล็กน้อย
+ Minor - ปัญหาด้านการแสดงผล/UI
+ Trivial - ปัญหาเล็กน้อย
+
+
+### 3. ลักษณะของ Bug (Type)
+
+ Functional bug (ฟังก์ชันทำงานผิด)
+ Logic bug (ตรรกะผิด)
+ Performance bug (ประสิทธิภาพต่ำ)
+ Security bug (ความปลอดภัย)
+ UI/UX bug (ปัญหาการแสดงผล)
+ Database bug (ปัญหาฐานข้อมูล)
+
+### 4. ส่วนที่มี Bug (Component/Module)
+
+ Authentication (การล็อกอิน)
+ Books Management (จัดการหนังสือ)
+ Members Management (จัดการสมาชิก)
+ Borrowing/Return (ยืม/คืนหนังสือ)
+ Dashboard (แดชบอร์ด)
+ Database
+ API
+
+
+### 5. ขั้นตอนการสร้างซ้ำ (Steps to Reproduce)
+
+เปิดโปรแกรม Postman
+สร้าง Request ใหม่ ตั้งค่า HTTP Method เป็น GET และระบุ URL เป็น http://localhost:3000/api/books
+ไปที่แท็บ Headers เพิ่ม Key ชื่อ Authorization และใส่ Value เป็น Bearer invalid_token_123
+กดปุ่ม Send เพื่อส่ง Request
+
+### 6. พฤติกรรมที่คาดหวัง (Expected Behavior)
+ระบบควรตรวจสอบ Token และตอบกลับด้วย HTTP Status 401 Unauthorized พร้อม message ว่า token ไม่ถูกต้อง
+### 7. พฤติกรรมจริง (Actual Behavior)
+ระบบตอบกลับด้วย HTTP 200 OK พร้อมส่งข้อมูลรายการหนังสือทั้งหมดกลับมา
+### 8. ผลกระทบ (Impact)
+ข้อมูลหนังสือในระบบหลุดสู่ผู้ที่ไม่มีสิทธิ์เข้าถึง ถือเป็นช่องโหว่ด้านความปลอดภัยระดับสูง
+### 9. ข้อมูลเพิ่มเติม (Additional Information)
+ข้อมูล Environment:
+
+OS: Windows
+Browser: API Testing via Postman
+Version of System: v2
+TC Ref.: TC-010
+
+
 
 ## เคล็ดลับการรายงาน Bug ที่ดี
 
