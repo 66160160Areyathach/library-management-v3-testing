@@ -72,6 +72,17 @@ describe("Members Integration API", () => {
       expect(response.status).toBe(404);
       expect(response.body).toHaveProperty("error", "Member not found");
     });
+
+    test("should return 404 when member id format is invalid", async () => {
+      const cookies = await login("librarian", "lib123");
+
+      const response = await request(app)
+        .get("/api/members/abc")
+        .set("Cookie", cookies);
+
+      expect(response.status).toBe(404);
+      expect(response.body).toHaveProperty("error", "Member not found");
+    });
   });
 
   describe("POST /api/members", () => {
@@ -154,6 +165,17 @@ describe("Members Integration API", () => {
         "Member code already exists",
       );
     });
+
+    test("should return 401 when unauthenticated user tries to create member", async () => {
+      const response = await request(app).post("/api/members").send({
+        memberCode: `MNOAUTH${Date.now()}`,
+        fullName: "No Auth Member",
+        memberType: "student",
+      });
+
+      expect(response.status).toBe(401);
+      expect(response.body).toHaveProperty("error", "Unauthorized");
+    });
   });
 
   describe("DELETE /api/members/:id", () => {
@@ -169,6 +191,17 @@ describe("Members Integration API", () => {
         "error",
         "Cannot delete member with unreturned books",
       );
+    });
+
+    test("should return 404 when deleting a non-existent member", async () => {
+      const cookies = await login("admin", "admin123");
+
+      const response = await request(app)
+        .delete("/api/members/99999")
+        .set("Cookie", cookies);
+
+      expect(response.status).toBe(404);
+      expect(response.body).toHaveProperty("error", "Member not found");
     });
   });
 });
