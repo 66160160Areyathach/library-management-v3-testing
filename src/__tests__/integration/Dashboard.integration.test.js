@@ -25,6 +25,15 @@ describe("Dashboard Integration API", () => {
       expect(response.body).toHaveProperty("error", "Unauthorized");
     });
 
+    test("should return 401 when request contains an invalid session cookie", async () => {
+      const response = await request(app)
+        .get("/api/dashboard/stats")
+        .set("Cookie", "connect.sid=s%3Ainvalid.invalid");
+
+      expect(response.status).toBe(401);
+      expect(response.body).toHaveProperty("error", "Unauthorized");
+    });
+
     test("should return dashboard stats for authenticated users", async () => {
       const cookies = await loginAsAdmin();
 
@@ -33,6 +42,7 @@ describe("Dashboard Integration API", () => {
         .set("Cookie", cookies);
 
       expect(response.status).toBe(200);
+      expect(response.headers["content-type"]).toMatch(/application\/json/);
       expect(response.body).toEqual(
         expect.objectContaining({
           totalBooks: expect.any(Number),
@@ -129,6 +139,24 @@ describe("Dashboard Integration API", () => {
       );
       expect(response.body.unreturned).toBeGreaterThanOrEqual(
         response.body.overdueBooks,
+      );
+    });
+
+    test("should return the same stat keys across consecutive requests", async () => {
+      const cookies = await loginAsAdmin();
+
+      const firstResponse = await request(app)
+        .get("/api/dashboard/stats")
+        .set("Cookie", cookies);
+
+      const secondResponse = await request(app)
+        .get("/api/dashboard/stats")
+        .set("Cookie", cookies);
+
+      expect(firstResponse.status).toBe(200);
+      expect(secondResponse.status).toBe(200);
+      expect(Object.keys(firstResponse.body).sort()).toEqual(
+        Object.keys(secondResponse.body).sort(),
       );
     });
   });
