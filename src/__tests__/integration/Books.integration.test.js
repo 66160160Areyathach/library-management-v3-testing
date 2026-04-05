@@ -96,6 +96,17 @@ describe("Books Integration API", () => {
       expect(response.status).toBe(404);
       expect(response.body).toHaveProperty("error", "Book not found");
     });
+
+    test("should return 404 when book id format is invalid", async () => {
+      const cookies = await login("librarian", "lib123");
+
+      const response = await request(app)
+        .get("/api/books/abc")
+        .set("Cookie", cookies);
+
+      expect(response.status).toBe(404);
+      expect(response.body).toHaveProperty("error", "Book not found");
+    });
   });
 
   describe("POST /api/books", () => {
@@ -116,6 +127,17 @@ describe("Books Integration API", () => {
         "error",
         "Forbidden - Admin access required",
       );
+    });
+
+    test("should return 401 when unauthenticated user tries to create a book", async () => {
+      const response = await request(app).post("/api/books").send({
+        title: "No Auth Book",
+        author: "Anonymous",
+        totalCopies: 1,
+      });
+
+      expect(response.status).toBe(401);
+      expect(response.body).toHaveProperty("error", "Unauthorized");
     });
 
     test("should return 400 when required fields are missing", async () => {
@@ -174,6 +196,26 @@ describe("Books Integration API", () => {
 
       expect(response.status).toBe(400);
       expect(response.body).toHaveProperty("error", "ISBN already exists");
+    });
+
+    test("should return 400 when total copies is zero", async () => {
+      const cookies = await login("admin", "admin123");
+
+      const response = await request(app)
+        .post("/api/books")
+        .set("Cookie", cookies)
+        .send({
+          isbn: `ZERO-${Date.now()}`,
+          title: "Zero Copies Book",
+          author: "Integration Author",
+          totalCopies: 0,
+        });
+
+      expect(response.status).toBe(400);
+      expect(response.body).toHaveProperty(
+        "error",
+        "Title, author, and total copies are required",
+      );
     });
   });
 
