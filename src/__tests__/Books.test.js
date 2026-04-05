@@ -9,12 +9,18 @@
 
 const request = require("supertest");
 const app = require("../app");
+const { initializeDatabase } = require("../database");
+const { run } = require("../models/query");
 
 describe("Books API", () => {
   let sessionCookie;
 
-  // Setup: Login before each test suite
+  // Setup: Initialize database and login before each test suite
   beforeAll(async () => {
+    // Initialize database first
+    await initializeDatabase();
+
+    // Then login
     const response = await request(app).post("/api/auth/login").send({
       username: "admin",
       password: "admin123",
@@ -26,6 +32,25 @@ describe("Books API", () => {
   });
 
   describe("GET /api/books", () => {
+    test("TC-007: Happy Path - should get all books with valid authentication", async () => {
+      // Preconditions: มีหนังสือในระบบแล้ว (Books exist in system), Token ถูกต้อง (Valid token)
+      const response = await request(app)
+        .get("/api/books")
+        .set("Cookie", sessionCookie);
+
+      // Expected Result: HTTP 200 OK + array of books
+      expect(response.status).toBe(200);
+      expect(Array.isArray(response.body)).toBe(true);
+      expect(response.body.length).toBeGreaterThan(0);
+
+      // Verify that books have required fields
+      const firstBook = response.body[0];
+      expect(firstBook).toHaveProperty("book_id");
+      expect(firstBook).toHaveProperty("title");
+      expect(firstBook).toHaveProperty("author");
+      expect(firstBook).toHaveProperty("available_copies");
+    });
+
     test("should get all books", async () => {
       const response = await request(app)
         .get("/api/books")
@@ -47,6 +72,33 @@ describe("Books API", () => {
       expect(book).toHaveProperty("title");
       expect(book).toHaveProperty("author");
       expect(book).toHaveProperty("available_copies");
+    });
+
+    test("TC-008: Happy Path - should get books filtered by genre", async () => {
+      // Preconditions: มีหนังสือที่ genre=fiction (Books exist with fiction genre)
+      const response = await request(app)
+        .get("/api/books?genre=Fiction")
+        .set("Cookie", sessionCookie);
+
+      // Expected Result: HTTP 200 OK + filtered array (only fiction books)
+      expect(response.status).toBe(200);
+      expect(Array.isArray(response.body)).toBe(true);
+
+      // Verify all returned books have the requested genre
+      response.body.forEach((book) => {
+        expect(book.category).toBe("Fiction");
+      });
+    });
+
+    test("TC-009: Sad Path - should return 401 when no authorization header", async () => {
+      // Preconditions: Server is running
+      const response = await request(app)
+        .get("/api/books");
+        // ไม่ใส่ Authorization header (no .set("Cookie", sessionCookie))
+
+      // Expected Result: HTTP 401 Unauthorized
+      expect(response.status).toBe(401);
+      expect(response.body).toHaveProperty("error");
     });
   });
 
@@ -169,9 +221,16 @@ describe("Books API - Excel Test Cases", () => {
   });
 
   test("TC-010 GET /api/books empty database returns []", async () => {
+    // First, clear all books from database (simulate empty database)
+    await run("DELETE FROM books");
+
     const res = await request(app).get("/api/books").set("Cookie", adminCookie);
     expect(res.status).toBe(200);
     expect(Array.isArray(res.body)).toBe(true);
+    expect(res.body.length).toBe(0); // Should return empty array
+
+    // Reinitialize database after test to restore data for other tests
+    await initializeDatabase();
   });
 
   test("TC-011 GET /api/books/1", async () => {

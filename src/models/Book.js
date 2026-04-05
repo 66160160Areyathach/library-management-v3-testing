@@ -16,6 +16,13 @@ const Book = {
     return getAll("SELECT book_id as id, * FROM books ORDER BY title");
   },
 
+  async getByGenre(genre) {
+    return getAll(
+      "SELECT book_id as id, * FROM books WHERE category = ? ORDER BY title",
+      [genre],
+    );
+  },
+
   async search(query) {
     const searchTerm = `%${query}%`;
     return getAll(
