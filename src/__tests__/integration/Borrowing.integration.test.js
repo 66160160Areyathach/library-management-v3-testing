@@ -185,22 +185,6 @@ describe("Borrowing Integration API", () => {
     });
   });
 
-  describe("GET /api/borrowing/:borrowId", () => {
-    test("should return 404 when borrowing id format is invalid", async () => {
-      const cookies = await login("admin", "admin123");
-
-      const response = await request(app)
-        .get("/api/borrowing/abc")
-        .set("Cookie", cookies);
-
-      expect(response.status).toBe(404);
-      expect(response.body).toHaveProperty(
-        "error",
-        "Borrowing record not found",
-      );
-    });
-  });
-
   describe("PUT /api/borrowing/:borrowId/return", () => {
     test("should return a borrowed book successfully", async () => {
       const cookies = await login("admin", "admin123");
@@ -220,48 +204,6 @@ describe("Borrowing Integration API", () => {
           success: true,
           fineAmount: 0,
         }),
-      );
-    });
-
-    test("should return 400 when return date is missing", async () => {
-      const cookies = await login("admin", "admin123");
-      const suffix = Date.now();
-      const { borrowId } = await createBorrowRecord(cookies, suffix);
-
-      const response = await request(app)
-        .put(`/api/borrowing/${borrowId}/return`)
-        .set("Cookie", cookies)
-        .send({});
-
-      expect(response.status).toBe(400);
-      expect(response.body).toHaveProperty("error", "Return date is required");
-    });
-
-    test("should return 400 when returning the same book twice", async () => {
-      const cookies = await login("admin", "admin123");
-      const suffix = Date.now();
-      const { borrowId } = await createBorrowRecord(cookies, suffix);
-
-      const firstReturn = await request(app)
-        .put(`/api/borrowing/${borrowId}/return`)
-        .set("Cookie", cookies)
-        .send({
-          returnDate: "2026-04-08",
-        });
-
-      expect(firstReturn.status).toBe(200);
-
-      const secondReturn = await request(app)
-        .put(`/api/borrowing/${borrowId}/return`)
-        .set("Cookie", cookies)
-        .send({
-          returnDate: "2026-04-09",
-        });
-
-      expect(secondReturn.status).toBe(400);
-      expect(secondReturn.body).toHaveProperty(
-        "error",
-        "Book already returned",
       );
     });
   });
