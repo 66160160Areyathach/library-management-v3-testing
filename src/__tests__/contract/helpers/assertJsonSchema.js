@@ -55,6 +55,14 @@ function validateSchema(value, schema, path = "") {
         }
       }
     }
+
+    if (schema.additionalProperties === false && schema.properties) {
+      for (const key of Object.keys(value)) {
+        if (!(key in schema.properties)) {
+          errors.push(`${formatPath(path)} includes unexpected property "${key}"`);
+        }
+      }
+    }
   }
 
   if (schema.type === "array") {
