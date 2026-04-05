@@ -177,6 +177,61 @@ Version of System: v2
 TC Ref.: TC-006
 
 
+### BUG-03
+### ข้อมูลเกี่ยวกับ Bug
+    1. ไม่มี Rate Limiting บน Login Endpoint เสี่ยงต่อ Brute Force Attack
+    API and Integration Testing Focus - ทดสอบ Backend API อย่างถูกต้อง:
+### 2. ความสำคัญ (Severity)
+
+ Critical - ระบบไม่ทำงาน/สูญเสียข้อมูล
+ Major - ฟังก์ชันหลักทำงานผิด
+ Medium - ฟังก์ชันรองทำงานผิดเล็กน้อย
+ Minor - ปัญหาด้านการแสดงผล/UI
+ Trivial - ปัญหาเล็กน้อย
+
+
+### 3. ลักษณะของ Bug (Type)
+
+ Functional bug (ฟังก์ชันทำงานผิด)
+ Logic bug (ตรรกะผิด)
+ Performance bug (ประสิทธิภาพต่ำ)
+ Security bug (ความปลอดภัย)
+ UI/UX bug (ปัญหาการแสดงผล)
+ Database bug (ปัญหาฐานข้อมูล)
+
+### 4. ส่วนที่มี Bug (Component/Module)
+
+ Authentication (การล็อกอิน)
+ Books Management (จัดการหนังสือ)
+ Members Management (จัดการสมาชิก)
+ Borrowing/Return (ยืม/คืนหนังสือ)
+ Dashboard (แดชบอร์ด)
+ Database
+ API
+
+
+### 5. ขั้นตอนการสร้างซ้ำ (Steps to Reproduce)
+
+เปิดโปรแกรม Postman
+สร้าง Request ใหม่ ตั้งค่า HTTP Method เป็น POST และระบุ URL เป็น http://localhost:3000/api/auth/login
+ส่ง Request ซ้ำ 50 ครั้งติดกันอย่างรวดเร็ว (ใช้ Postman Runner หรือ script)
+สังเกต Response ว่ายังคืน 200/401 ปกติโดยไม่มีการบล็อก
+
+### 6. พฤติกรรมที่คาดหวัง (Expected Behavior)
+ระบบควรจำกัดจำนวนการ login ที่ผิดพลาดต่อเนื่อง และตอบกลับด้วย HTTP Status 429 Too Many Requests เมื่อเกินขีดจำกัด
+### 7. พฤติกรรมจริง (Actual Behavior)
+ระบบยังคงตอบกลับ HTTP 200 / 401 ปกติทุกครั้ง ไม่มีการ throttle หรือบล็อก IP แต่อย่างใด
+### 8. ผลกระทบ (Impact)
+ผู้โจมตีสามารถ Brute Force รหัสผ่านได้ไม่จำกัด ถือเป็นช่องโหว่ด้านความปลอดภัยระดับ Critical
+### 9. ข้อมูลเพิ่มเติม (Additional Information)
+ข้อมูล Environment:
+
+OS: Windows
+Browser: API Testing via Postman
+Version of System: v2
+TC Ref.: TC-007
+
+
 
 ## เคล็ดลับการรายงาน Bug ที่ดี
 
