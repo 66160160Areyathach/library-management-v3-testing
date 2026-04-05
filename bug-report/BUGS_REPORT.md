@@ -10,7 +10,7 @@
 
 **วันที่พบ bug:5/4/2569
 
-**ลำดับที่ของ bug:1
+**ลำดับที่ของ bug:001
 
 ---
 
@@ -111,16 +111,72 @@
 ### Console Logs:
 
 
-## Checklist ก่อนส่ง
+### BUG-02
+### ข้อมูลพื้นฐาน
+    ชื่อ/ID นิสิต: 66160018
+    วันที่พบ bug: 5/4/2569
+    ลำดับที่ของ bug: 002
+### ข้อมูลเกี่ยวกับ Bug
+1. ระบบไม่ Validate ความยาว Input — Username 300 ตัวอักษรผ่านได้ คืน 401 แทน 400
+API and Integration Testing Focus - ทดสอบ Backend API อย่างถูกต้อง:
 
-- [ ] ได้ทดสอบสร้างซ้ำปัญหาแล้ว
-- [ ] ไม่ใช่ duplicate bug
-- [ ] ได้เล็งทีหัวข้อให้ชัดเจน
-- [ ] ได้ให้ขั้นตอนการสร้างซ้ำแบบขั้นต่ำ (Minimal reproduction)
-- [ ] ได้เพิ่มรูปหรือข้อมูลเพิ่มเติม (ถ้ามี)
-- [ ] ได้ตรวจสอบความถูกต้องของข้อมูลแล้ว
+### 2. ความสำคัญ (Severity)
+[ ] Critical - ระบบไม่ทำงาน/สูญเสียข้อมูล
+[ ] Major - ฟังก์ชันหลักทำงานผิด
+[X] Medium - ฟังก์ชันรองทำงานผิดเล็กน้อย
+[ ] Minor - ปัญหาด้านการแสดงผล/UI
+[ ] Trivial - ปัญหาเล็กน้อย
 
----
+
+### 3. ลักษณะของ Bug (Type)
+
+[ ] Functional bug (ฟังก์ชันทำงานผิด)
+[X] Logic bug (ตรรกะผิด)
+[ ] Performance bug (ประสิทธิภาพต่ำ)
+[X] Security bug (ความปลอดภัย)
+[ ] UI/UX bug (ปัญหาการแสดงผล)
+[ ] Database bug (ปัญหาฐานข้อมูล)
+
+### 4. ส่วนที่มี Bug (Component/Module)
+
+- [X] Authentication (การล็อกอิน)
+- [ ] Books Management (จัดการหนังสือ)
+- [ ] Members Management (จัดการสมาชิก)
+- [ ] Borrowing/Return (ยืม/คืนหนังสือ)
+- [ ] Dashboard (แดชบอร์ด)
+- [ ] Database
+- [X] API
+- [ ] Other: **\*\*\*\***\_\_\_**\*\*\*\***
+
+
+
+### 5. ขั้นตอนการสร้างซ้ำ (Steps to Reproduce)
+
+1.เปิดโปรแกรม Postman
+2.สร้าง Request ใหม่ ตั้งค่า HTTP Method เป็น POST และระบุ URL เป็น http://localhost:3000/api/auth/login
+3.ไปที่แท็บ Body เลือก raw (JSON) และระบุ username เป็น string ยาว 300 ตัวอักษร:
+
+    json{
+        "username": "AAAA...AAA (300 ตัวอักษร)",
+        "password": "anypassword"
+}
+
+กดปุ่ม Send เพื่อส่ง Request
+### 6. พฤติกรรมที่คาดหวัง (Expected Behavior)
+ระบบควรตรวจสอบความยาวของ input และตอบกลับด้วย HTTP Status 400 Bad Request พร้อมแจ้งว่า username ยาวเกินกำหนด
+### 7. พฤติกรรมจริง (Actual Behavior)
+ระบบรับ input ยาว 300 ตัวอักษรเข้าไปประมวลผล และตอบกลับด้วย 401 Unauthorized แทนที่จะ validate ก่อน
+### 8. ผลกระทบ (Impact)
+เสี่ยงต่อการโจมตีแบบ Buffer Overflow หรือ DoS เนื่องจากไม่มีการจำกัดความยาว input
+### 9. ข้อมูลเพิ่มเติม (Additional Information)
+ข้อมูล Environment:
+
+OS: Windows
+Browser: API Testing via Postman
+Version of System: v2
+TC Ref.: TC-006
+
+
 
 ## เคล็ดลับการรายงาน Bug ที่ดี
 
