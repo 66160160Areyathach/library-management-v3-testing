@@ -16,7 +16,7 @@
 
 ## ข้อมูลเกี่ยวกับ Bug
 
-### 1.เกิด Error 500 เมื่อส่ง Request Body เป็น JSON ผิดไวยากรณ์ (Login API)
+### 1.ระบบคืน 401 Unauthorized แทนที่จะเป็น 400 Bad Request เมื่อส่ง Password เป็นค่าว่าง
 
 **API and Integration Testing Focus - ทดสอบ Backend API อย่างถูกต้อง:**
 
@@ -25,8 +25,8 @@
 เลือกระดับความสำคัญ:
 
 - [ ] **Critical** - ระบบไม่ทำงาน/สูญเสียข้อมูล
-- [X] **Major** - ฟังก์ชันหลักทำงานผิด
-- [ ] **Minor** - ฟังก์ชันรองทำงานผิด
+- [ ] **Major** - ฟังก์ชันหลักทำงานผิด
+- [X] **Medium** - การจัดการ Error ไม่เป็นไปตามมาตรฐาน          (Improper Error Handling)
 - [ ] **Trivial** - ปัญหาด้านการแสดงผล/UI
 
 ---
@@ -35,13 +35,13 @@
 
 เลือกประเภท:
 
-- [X] Functional bug (ฟังก์ชันทำงานผิด)
-- [ ] Logic bug (ตรรกะผิด)
+- [ ] Functional bug (ฟังก์ชันทำงานผิด)
+- [X] Logic bug (ตรรกะผิด)
 - [ ] Performance bug (ประสิทธิภาพต่ำ)
 - [ ] Security bug (ความปลอดภัย)
 - [ ] UI/UX bug (ปัญหาการแสดงผล)
 - [ ] Database bug (ปัญหาฐานข้อมูล)
-- [X] Other: Improper Error Handling (จัดการ Error ไม่เหมาะสม)
+- [X] Other: Improper Status Code Handling
 
 ### 4. ส่วนที่มี Bug (Component/Module)
 
@@ -62,50 +62,46 @@
 
 ลิสต์ขั้นตอนทีละขั้นตอนเพื่อสร้างซ้ำ bug:
 
-1. เปิดโปรแกรม Postman
+เปิดโปรแกรม Postman
 
-2. ตั้งค่า HTTP Method เป็น POST และระบุ URL เป็น http://localhost:3000/api/auth/login
+ตั้งค่า HTTP Method เป็น POST และระบุ URL เป็น http://localhost:3000/api/auth/login
 
-3. ไปที่แท็บ Body เลือกประเภทเป็น raw และเลือกรูปแบบเป็น JSON
+ไปที่แท็บ Body เลือกประเภทเป็น raw และเลือกรูปแบบเป็น JSON
 
-4. ป้อนข้อมูลที่ผิดไวยากรณ์ JSON (Malformed JSON) เช่น ไม่ใส่เครื่องหมายปีกกา {} หรือพิมพ์รูปแบบผิด เช่น username = dffff
-
-5. กดปุ่ม Send เพื่อส่ง Request
+ป้อนข้อมูลโดยระบุ Username แต่ปล่อย Password ให้เป็นค่าว่าง ดังนี้: {
+    "username": "testuser",
+    "password": ""
+}
 
 ---
 
 ### 6. พฤติกรรมที่คาดหวัง (Expected Behavior)
-
-ระบบควรทำงานอย่างไร:ระบบควรตรวจสอบความถูกต้องของรูปแบบข้อมูล (Payload) หากพบว่าไม่ใช่ JSON 
-ที่ถูกต้อง ควรตอบกลับด้วย HTTP Status 400 Bad Request พร้อมข้อความแจ้งเตือน
-ว่ารูปแบบข้อมูลไม่ถูกต้อง
+ระบบควรตรวจสอบว่าข้อมูลไม่ครบถ้วน (Missing Required Field) และตอบกลับด้วย HTTP Status 400 Bad Request พร้อมข้อความแจ้งเตือนว่า "Username and password are required" เพื่อบอกให้ผู้ใช้ทราบว่ากรอกข้อมูลไม่ครบ
 
 ### 7. พฤติกรรมจริง (Actual Behavior)
 
 ระบบทำงานอย่างไรจริงๆ:
 
-ระบบไม่สามารถอ่านข้อมูลได้ เกิด Unhandled Exception จนเซิร์ฟเวอร์ทำงานผิดพลาด
-และตอบกลับด้วย HTTP Status 500 Internal Server Error
+ระบบข้ามการตรวจสอบฟิลด์ว่าง และพยายามนำข้อมูลไปตรวจสอบสิทธิ์ในฐานข้อมูล จนตอบกลับด้วย HTTP Status 401 Unauthorized ซึ่งสื่อความหมายผิดว่า "รหัสผ่านไม่ถูกต้อง" ทั้งที่ความจริงคือ "ยังไม่ได้กรอกรหัสผ่าน"
 
 ### 8. ผลกระทบ (Impact)
 
-ผลกระทบต่อการใช้งาน:
-ผู้ใช้งานหรือระบบ Frontend จะไม่ทราบสาเหตุที่แท้จริงของการเกิด Error 
-และหากถูกยิง Request ผิดรูปแบบซ้ำๆ อาจทำให้เซิร์ฟเวอร์ล่ม (Crash) ได้
+ทำให้ฝั่ง Frontend หรือผู้ใช้งานสับสนระหว่าง "การกรอกข้อมูลไม่ครบ (400)" กับ "การกรอกข้อมูลผิด (401)" ซึ่งขัดต่อมาตรฐานการออกแบบ REST API ที่ดี และอาจนำไปสู่ช่องโหว่ในการเดาพฤติกรรมระบบได้
 
 ### 9. ข้อมูลเพิ่มเติม (Additional Information)
 
 ### ข้อมูล Environment:
 
 - **OS:** Windows
-- **Browser:** API Testing via Postman
+- **Browser:** Postman Desktop
 - **Version of System:v2
 
 
 
 ### Error Messages:
 {
-    "error": "Invalid username or password"
+    "error": "Unauthorized",
+    "message": "Invalid or expired token provided" 
 }
 
 ### Console Logs:
