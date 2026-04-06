@@ -618,6 +618,322 @@ Browser: API Testing via Postman
 Version of System: v2
 TC Ref.: TC-031
 
+### BUG-11
+### ข้อมูลเกี่ยวกับ Bug
+### 1. 409 Conflict ไม่มี Error Message อธิบายสาเหตุ Client ไม่รู้ว่าหนังสือหมด
+API and Integration Testing Focus - ทดสอบ Backend API อย่างถูกต้อง:
+### 2. ความสำคัญ (Severity)
+[ ] Critical - ระบบไม่ทำงาน/สูญเสียข้อมูล
+[ ] Major - ฟังก์ชันหลักทำงานผิด
+[X] Medium - ฟังก์ชันรองทำงานผิดเล็กน้อย
+[ ] Minor - ปัญหาด้านการแสดงผล/UI
+[ ] Trivial - ปัญหาเล็กน้อย
+
+
+### 3. ลักษณะของ Bug (Type)
+
+[X] Functional bug (ฟังก์ชันทำงานผิด)
+[ ] Logic bug (ตรรกะผิด)
+[ ] Performance bug (ประสิทธิภาพต่ำ)
+[ ] Security bug (ความปลอดภัย)
+[ ] UI/UX bug (ปัญหาการแสดงผล)
+[ ] Database bug (ปัญหาฐานข้อมูล)
+
+### 4. ส่วนที่มี Bug (Component/Module)
+
+- [ ] Authentication (การล็อกอิน)
+- [ ] Books Management (จัดการหนังสือ)
+- [ ] Members Management (จัดการสมาชิก)
+- [X] Borrowing/Return (ยืม/คืนหนังสือ)
+- [ ] Dashboard (แดชบอร์ด)
+- [ ] Database
+- [X] API
+- [ ] Other: **\*\*\*\***\_\_\_**\*\*\*\***
+
+### 5. ขั้นตอนการสร้างซ้ำ (Steps to Reproduce)
+
+เปิดโปรแกรม Postman และ Login เพื่อรับ JWT Token
+สร้าง Request POST http://localhost:3000/api/borrowing พร้อมแนบ Token
+ระบุ bookId ของหนังสือที่ available_copies = 0 (หมด stock):
+
+json{
+  "bookId": 1,
+  "memberId": 2,
+  "borrowDate": "2024-05-20",
+  "dueDate": "2024-05-27"
+}
+
+กดปุ่ม Send และดู Response body
+
+### 6. พฤติกรรมที่คาดหวัง (Expected Behavior)
+ระบบควรตอบกลับด้วย 409 Conflict พร้อม error message อธิบายสาเหตุ เช่น "Book is currently unavailable, all copies are borrowed"
+### 7. พฤติกรรมจริง (Actual Behavior)
+ระบบตอบกลับด้วย 409 Conflict แต่ไม่มี error message อธิบาย ทำให้ client ไม่ทราบสาเหตุที่แท้จริง
+### 8. ผลกระทบ (Impact)
+Frontend ไม่สามารถแสดง error message ที่ชัดเจนแก่ผู้ใช้งานได้ ทำให้ UX แย่ลง
+### 9. ข้อมูลเพิ่มเติม (Additional Information)
+ข้อมูล Environment:
+
+OS: Windows
+Browser: API Testing via Postman
+Version of System: v2
+TC Ref.: TC-033
+
+Actual Response Body:
+json{
+  "status": 409
+}
+
+### BUG-12
+### ข้อมูลเกี่ยวกับ Bug
+### 1. ระบบไม่ตรวจสอบ max_books ต่อ Member Type ยืมเกินสิทธิ์ได้
+API and Integration Testing Focus - ทดสอบ Backend API อย่างถูกต้อง:
+### 2. ความสำคัญ (Severity)
+[ ] Critical - ระบบไม่ทำงาน/สูญเสียข้อมูล
+[X] Major - ฟังก์ชันหลักทำงานผิด
+[ ] Medium - ฟังก์ชันรองทำงานผิดเล็กน้อย
+[ ] Minor - ปัญหาด้านการแสดงผล/UI
+[ ] Trivial - ปัญหาเล็กน้อย
+
+
+### 3. ลักษณะของ Bug (Type)
+
+[ ] Functional bug (ฟังก์ชันทำงานผิด)
+[X] Logic bug (ตรรกะผิด)
+[ ] Performance bug (ประสิทธิภาพต่ำ)
+[ ] Security bug (ความปลอดภัย)
+[ ] UI/UX bug (ปัญหาการแสดงผล)
+[ ] Database bug (ปัญหาฐานข้อมูล)
+
+### 4. ส่วนที่มี Bug (Component/Module)
+
+- [ ] Authentication (การล็อกอิน)
+- [ ] Books Management (จัดการหนังสือ)
+- [X] Members Management (จัดการสมาชิก)
+- [X] Borrowing/Return (ยืม/คืนหนังสือ)
+- [ ] Dashboard (แดชบอร์ด)
+- [ ] Database
+- [X] API
+- [ ] Other: **\*\*\*\***\_\_\_**\*\*\*\***
+
+### 5. ขั้นตอนการสร้างซ้ำ (Steps to Reproduce)
+
+Login ด้วย account ของ Student (memberId=2) ซึ่งมีสิทธิ์ยืมสูงสุด 3 เล่ม
+ยืมหนังสือจนครบ 3 เล่ม (max_books=3)
+ลองยืมหนังสือเล่มที่ 4:
+
+json{
+  "memberId": 2,
+  "bookId": 6,
+  "borrowDate": "2025-01-10",
+  "dueDate": "2025-01-24"
+}
+
+กดปุ่ม Send และดู Response
+
+### 6. พฤติกรรมที่คาดหวัง (Expected Behavior)
+ระบบควรตรวจสอบ quota และตอบกลับด้วย 409 Conflict พร้อมแจ้งว่าเกินสิทธิ์การยืม
+### 7. พฤติกรรมจริง (Actual Behavior)
+ระบบตอบกลับด้วย HTTP 201 Created อนุญาตให้ยืมเล่มที่ 4 ได้ทั้งที่เกิน quota
+### 8. ผลกระทบ (Impact)
+สมาชิกยืมหนังสือได้เกินสิทธิ์ที่กำหนดตาม member type ทำให้ business rule ของห้องสมุดถูกละเมิด
+### 9. ข้อมูลเพิ่มเติม (Additional Information)
+ข้อมูล Environment:
+
+OS: Windows
+Browser: API Testing via Postman
+Version of System: v2
+TC Ref.: TC-036
+
+
+### BUG-13
+### ข้อมูลเกี่ยวกับ Bug
+### 1. ระบบไม่ Validate ลำดับวันที่ dueDate < borrowDate บันทึกข้อมูล Invalid ได้
+API and Integration Testing Focus - ทดสอบ Backend API อย่างถูกต้อง:
+### 2. ความสำคัญ (Severity)
+[ ] Critical - ระบบไม่ทำงาน/สูญเสียข้อมูล
+[X] Major - ฟังก์ชันหลักทำงานผิด
+[ ] Medium - ฟังก์ชันรองทำงานผิดเล็กน้อย
+[ ] Minor - ปัญหาด้านการแสดงผล/UI
+[ ] Trivial - ปัญหาเล็กน้อย
+
+
+### 3. ลักษณะของ Bug (Type)
+
+[ ] Functional bug (ฟังก์ชันทำงานผิด)
+[X] Logic bug (ตรรกะผิด)
+[ ] Performance bug (ประสิทธิภาพต่ำ)
+[ ] Security bug (ความปลอดภัย)
+[ ] UI/UX bug (ปัญหาการแสดงผล)
+[ ] Database bug (ปัญหาฐานข้อมูล)
+
+### 4. ส่วนที่มี Bug (Component/Module)
+
+- [ ] Authentication (การล็อกอิน)
+- [ ] Books Management (จัดการหนังสือ)
+- [ ] Members Management (จัดการสมาชิก)
+- [X] Borrowing/Return (ยืม/คืนหนังสือ)
+- [ ] Dashboard (แดชบอร์ด)
+- [ ] Database
+- [X] API
+- [ ] Other: **\*\*\*\***\_\_\_**\*\*\*\***
+
+
+### 5. ขั้นตอนการสร้างซ้ำ (Steps to Reproduce)
+
+Login เพื่อรับ JWT Token ที่ถูกต้อง
+สร้าง Request POST http://localhost:3000/api/borrowing พร้อมแนบ Token
+ระบุ dueDate ที่น้อยกว่า borrowDate:
+
+json{
+  "memberId": 1,
+  "bookId": 3,
+  "borrowDate": "2025-02-20",
+  "dueDate": "2025-02-10"
+}
+
+กดปุ่ม Send และดู Response
+
+### 6. พฤติกรรมที่คาดหวัง (Expected Behavior)
+ระบบควรตรวจสอบว่า dueDate >= borrowDate หากไม่ถูกต้องควรตอบกลับด้วย 400 Bad Request พร้อมแจ้ง error วันที่ไม่ถูกต้อง
+### 7. พฤติกรรมจริง (Actual Behavior)
+ระบบบันทึกข้อมูลและตอบกลับด้วย HTTP 201 Created แม้ dueDate < borrowDate
+### 8. ผลกระทบ (Impact)
+ข้อมูลการยืมที่ไม่ถูกต้องถูกบันทึกลงฐานข้อมูล ส่งผลต่อรายงานและการคำนวณค่าปรับ
+### 9. ข้อมูลเพิ่มเติม (Additional Information)
+ข้อมูล Environment:
+
+OS: Windows
+Browser: API Testing via Postman
+Version of System: v2
+TC Ref.: TC-037
+
+
+### BUG-14
+### ข้อมูลเกี่ยวกับ Bug
+### 1. Member ที่ Suspended ยังยืมหนังสือได้ ระบบไม่ตรวจสอบ Member Status
+API and Integration Testing Focus - ทดสอบ Backend API อย่างถูกต้อง:
+### 2. ความสำคัญ (Severity)
+[ ] Critical - ระบบไม่ทำงาน/สูญเสียข้อมูล
+[X] Major - ฟังก์ชันหลักทำงานผิด
+[ ] Medium - ฟังก์ชันรองทำงานผิดเล็กน้อย
+[ ] Minor - ปัญหาด้านการแสดงผล/UI
+[ ] Trivial - ปัญหาเล็กน้อย
+
+
+### 3. ลักษณะของ Bug (Type)
+
+[ ] Functional bug (ฟังก์ชันทำงานผิด)
+[X] Logic bug (ตรรกะผิด)
+[ ] Performance bug (ประสิทธิภาพต่ำ)
+[ ] Security bug (ความปลอดภัย)
+[ ] UI/UX bug (ปัญหาการแสดงผล)
+[ ] Database bug (ปัญหาฐานข้อมูล)
+
+### 4. ส่วนที่มี Bug (Component/Module)
+
+- [ ] Authentication (การล็อกอิน)
+- [ ] Books Management (จัดการหนังสือ)
+- [X] Members Management (จัดการสมาชิก)
+- [X] Borrowing/Return (ยืม/คืนหนังสือ)
+- [ ] Dashboard (แดชบอร์ด)
+- [X] Database
+- [X] API
+- [ ] Other: **\*\*\*\***\_\_\_**\*\*\*\***
+
+
+### 5. ขั้นตอนการสร้างซ้ำ (Steps to Reproduce)
+
+Login ด้วย account ที่มีสิทธิ์เข้าถึง (หรือ admin)
+ตรวจสอบว่า memberId=5 มีสถานะ suspended
+สร้าง Request POST http://localhost:3000/api/borrowing พร้อมแนบ Token:
+
+json{
+  "memberId": 5,
+  "bookId": 7,
+  "borrowDate": "2025-01-10",
+  "dueDate": "2025-01-24"
+}
+
+กดปุ่ม Send และดู Response
+
+### 6. พฤติกรรมที่คาดหวัง (Expected Behavior)
+ระบบควรตรวจสอบสถานะสมาชิกก่อนอนุญาตยืม หากสถานะเป็น suspended ควรตอบกลับด้วย 403 Forbidden
+### 7. พฤติกรรมจริง (Actual Behavior)
+ระบบตอบกลับด้วย HTTP 201 Created อนุญาตให้สมาชิกที่ถูกระงับยืมหนังสือได้ตามปกติ
+### 8. ผลกระทบ (Impact)
+สมาชิกที่ถูก suspend (เช่น ค้างชำระ ทำหนังสือหาย) ยังคงใช้งานระบบได้ ทำให้การ suspend ไม่มีผลจริง
+### 9. ข้อมูลเพิ่มเติม (Additional Information)
+ข้อมูล Environment:
+
+OS: Windows
+Browser: API Testing via Postman
+Version of System: v2
+TC Ref.: TC-038
+
+
+### BUG-15
+### ข้อมูลเกี่ยวกับ Bug
+### 1. ระบบยอมให้บันทึกการคืนซ้ำ อัปเดต return_date ทับเดิมโดยไม่แจ้ง Error
+API and Integration Testing Focus - ทดสอบ Backend API อย่างถูกต้อง:
+### 2. ความสำคัญ (Severity)
+[ ] Critical - ระบบไม่ทำงาน/สูญเสียข้อมูล
+[ ] Major - ฟังก์ชันหลักทำงานผิด
+[X] Medium - ฟังก์ชันรองทำงานผิดเล็กน้อย
+[ ] Minor - ปัญหาด้านการแสดงผล/UI
+[ ] Trivial - ปัญหาเล็กน้อย
+
+
+### 3. ลักษณะของ Bug (Type)
+
+[ ] Functional bug (ฟังก์ชันทำงานผิด)
+[X] Logic bug (ตรรกะผิด)
+[ ] Performance bug (ประสิทธิภาพต่ำ)
+[ ] Security bug (ความปลอดภัย)
+[ ] UI/UX bug (ปัญหาการแสดงผล)
+[ ] Database bug (ปัญหาฐานข้อมูล)
+
+### 4. ส่วนที่มี Bug (Component/Module)
+
+- [ ] Authentication (การล็อกอิน)
+- [ ] Books Management (จัดการหนังสือ)
+- [ ] Members Management (จัดการสมาชิก)
+- [X] Borrowing/Return (ยืม/คืนหนังสือ)
+- [ ] Dashboard (แดชบอร์ด)
+- [ ] Database
+- [X] API
+- [ ] Other: **\*\*\*\***\_\_\_**\*\*\*\***
+
+### 5. ขั้นตอนการสร้างซ้ำ (Steps to Reproduce)
+
+Login เพื่อรับ JWT Token ที่ถูกต้อง
+ตรวจสอบว่า borrow_id=4 มีสถานะ returned แล้ว (คืนแล้ว)
+สร้าง Request PUT http://localhost:3000/api/borrowing/4/return พร้อมแนบ Token:
+
+json{
+  "returnDate": "2025-02-10"
+}
+
+กดปุ่ม Send ซ้ำ (คืนซ้ำครั้งที่ 2)
+
+### 6. พฤติกรรมที่คาดหวัง (Expected Behavior)
+ระบบควรตรวจสอบว่า record นี้คืนแล้วหรือยัง หากคืนแล้วควรตอบกลับด้วย 409 Conflict พร้อมแจ้งว่าไม่สามารถคืนซ้ำได้
+### 7. พฤติกรรมจริง (Actual Behavior)
+ระบบตอบกลับด้วย HTTP 200 OK และอัปเดต return_date ทับข้อมูลเดิมโดยไม่มี error ใดๆ
+### 8. ผลกระทบ (Impact)
+return_date ในฐานข้อมูลถูกเปลี่ยนแปลงได้โดยไม่ตั้งใจ ทำให้ประวัติการยืม/คืนไม่ถูกต้อง ส่งผลต่อการคำนวณค่าปรับและรายงาน
+### 9. ข้อมูลเพิ่มเติม (Additional Information)
+ข้อมูล Environment:
+
+OS: Windows
+Browser: API Testing via Postman
+Version of System: v2
+TC Ref.: TC-040
+
+Error Messages:
+json{
+  "message": "Return date updated successfully"
+}
 ## เคล็ดลับการรายงาน Bug ที่ดี
 
 ✅ **ดี:**
