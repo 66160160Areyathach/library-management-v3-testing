@@ -454,6 +454,169 @@ Browser: API Testing via Postman
 Version of System: v2
 TC Ref.: TC-014
 
+### BUG-08
+### ข้อมูลเกี่ยวกับ Bug
+### 1. POST /api/books ไม่ตรวจสอบ Token ใครก็เพิ่มหนังสือได้
+API and Integration Testing Focus - ทดสอบ Backend API อย่างถูกต้อง:
+### 2. ความสำคัญ (Severity)
+[ ] Critical - ระบบไม่ทำงาน/สูญเสียข้อมูล
+[X] Major - ฟังก์ชันหลักทำงานผิด
+[ ] Medium - ฟังก์ชันรองทำงานผิดเล็กน้อย
+[ ] Minor - ปัญหาด้านการแสดงผล/UI
+[ ] Trivial - ปัญหาเล็กน้อย
+
+
+### 3. ลักษณะของ Bug (Type)
+
+[ ] Functional bug (ฟังก์ชันทำงานผิด)
+[ ] Logic bug (ตรรกะผิด)
+[ ] Performance bug (ประสิทธิภาพต่ำ)
+[X] Security bug (ความปลอดภัย)
+[ ] UI/UX bug (ปัญหาการแสดงผล)
+[ ] Database bug (ปัญหาฐานข้อมูล)
+
+### 4. ส่วนที่มี Bug (Component/Module)
+
+- [ ] Authentication (การล็อกอิน)
+- [X] Books Management (จัดการหนังสือ)
+- [ ] Members Management (จัดการสมาชิก)
+- [ ] Borrowing/Return (ยืม/คืนหนังสือ)
+- [ ] Dashboard (แดชบอร์ด)
+- [ ] Database
+- [X] API
+- [ ] Other: **\*\*\*\***\_\_\_**\*\*\*\***
+
+### 5. ขั้นตอนการสร้างซ้ำ (Steps to Reproduce)
+
+เปิดโปรแกรม Postman
+สร้าง Request ใหม่ POST http://localhost:3000/api/books
+ไม่ใส่ Authorization header ใดๆ
+ระบุ Body ข้อมูลหนังสือ แล้วกด Send
+
+### 6. พฤติกรรมที่คาดหวัง (Expected Behavior)
+ระบบควรบังคับให้แนบ Token และตรวจสอบสิทธิ์ admin ก่อน หากไม่มีให้ตอบกลับด้วย 401 Unauthorized
+### 7. พฤติกรรมจริง (Actual Behavior)
+ระบบตอบกลับด้วย HTTP 201 Created สามารถเพิ่มหนังสือได้โดยไม่ต้องมี Token
+### 8. ผลกระทบ (Impact)
+บุคคลภายนอกสามารถเพิ่มหนังสือปลอมเข้าระบบได้ ทำให้ข้อมูลใน catalog ไม่น่าเชื่อถือ
+### 9. ข้อมูลเพิ่มเติม (Additional Information)
+ข้อมูล Environment:
+
+OS: Windows
+Browser: API Testing via Postman
+Version of System: v2
+TC Ref.: TC-017
+
+
+### BUG-09
+### ข้อมูลเกี่ยวกับ Bug
+### 1. GET /api/books/abc คืน 404 แทน 400 ควร Validate ว่า :id ต้องเป็น Integer
+API and Integration Testing Focus - ทดสอบ Backend API อย่างถูกต้อง:
+### 2. ความสำคัญ (Severity)
+[ ] Critical - ระบบไม่ทำงาน/สูญเสียข้อมูล
+[ ] Major - ฟังก์ชันหลักทำงานผิด
+[X] Medium - ฟังก์ชันรองทำงานผิดเล็กน้อย
+[ ] Minor - ปัญหาด้านการแสดงผล/UI
+[ ] Trivial - ปัญหาเล็กน้อย
+
+
+### 3. ลักษณะของ Bug (Type)
+
+[ ] Functional bug (ฟังก์ชันทำงานผิด)
+[X] Logic bug (ตรรกะผิด)
+[ ] Performance bug (ประสิทธิภาพต่ำ)
+[ ] Security bug (ความปลอดภัย)
+[ ] UI/UX bug (ปัญหาการแสดงผล)
+[ ] Database bug (ปัญหาฐานข้อมูล)
+
+### 4. ส่วนที่มี Bug (Component/Module)
+
+- [ ] Authentication (การล็อกอิน)
+- [X] Books Management (จัดการหนังสือ)
+- [ ] Members Management (จัดการสมาชิก)
+- [ ] Borrowing/Return (ยืม/คืนหนังสือ)
+- [ ] Dashboard (แดชบอร์ด)
+- [ ] Database
+- [X] API
+- [ ] Other: **\*\*\*\***\_\_\_**\*\*\*\***
+
+
+### 5. ขั้นตอนการสร้างซ้ำ (Steps to Reproduce)
+
+เปิดโปรแกรม Postman
+Login เพื่อรับ JWT Token ที่ถูกต้อง
+สร้าง Request ใหม่ GET http://localhost:3000/api/books/abc พร้อมแนบ Token
+กดปุ่ม Send เพื่อส่ง Request
+
+### 6. พฤติกรรมที่คาดหวัง (Expected Behavior)
+ระบบควร validate ว่า :id ต้องเป็นตัวเลข integer เมื่อรับค่าที่ไม่ใช่ตัวเลขควรตอบกลับด้วย 400 Bad Request พร้อม error message: "Invalid book ID"
+### 7. พฤติกรรมจริง (Actual Behavior)
+ระบบตอบกลับด้วย HTTP 404 Not Found แทนที่จะเป็น 400 ซึ่งทำให้ client ตีความผิดว่า "ไม่เจอ resource" แทนที่จะเป็น "input ผิด"
+### 8. ผลกระทบ (Impact)
+Client จะ handle error ผิดพลาด เนื่องจาก semantic ของ 404 กับ 400 ต่างกัน ส่งผลต่อ error handling ฝั่ง frontend
+### 9. ข้อมูลเพิ่มเติม (Additional Information)
+ข้อมูล Environment:
+
+OS: Windows
+Browser: API Testing via Postman
+Version of System: v2
+TC Ref.: TC-022
+
+
+### BUG-10
+### ข้อมูลเกี่ยวกับ Bug
+### 1. DELETE ลบหนังสือที่มีสถานะ Borrowed ได้ ทำให้ Borrowing Record กำพร้า
+API and Integration Testing Focus - ทดสอบ Backend API อย่างถูกต้อง:
+### 2. ความสำคัญ (Severity)
+[X] Critical - ระบบไม่ทำงาน/สูญเสียข้อมูล
+[ ] Major - ฟังก์ชันหลักทำงานผิด
+[ ] Medium - ฟังก์ชันรองทำงานผิดเล็กน้อย
+[ ] Minor - ปัญหาด้านการแสดงผล/UI
+[ ] Trivial - ปัญหาเล็กน้อย
+
+
+### 3. ลักษณะของ Bug (Type)
+
+[ ] Functional bug (ฟังก์ชันทำงานผิด)
+[X] Logic bug (ตรรกะผิด)
+[ ] Performance bug (ประสิทธิภาพต่ำ)
+[ ] Security bug (ความปลอดภัย)
+[ ] UI/UX bug (ปัญหาการแสดงผล)
+[X] Database bug (ปัญหาฐานข้อมูล)
+
+### 4. ส่วนที่มี Bug (Component/Module)
+
+- [ ] Authentication (การล็อกอิน)
+- [X] Books Management (จัดการหนังสือ)
+- [ ] Members Management (จัดการสมาชิก)
+- [X] Borrowing/Return (ยืม/คืนหนังสือ)
+- [ ] Dashboard (แดชบอร์ด)
+- [X] Database
+- [X] API
+- [ ] Other: **\*\*\*\***\_\_\_**\*\*\*\***
+
+
+### 5. ขั้นตอนการสร้างซ้ำ (Steps to Reproduce)
+
+เปิดโปรแกรม Postman
+Login เพื่อรับ JWT Token ที่มีสิทธิ์ admin
+ตรวจสอบว่าหนังสือ ID=5 มีสถานะ borrowed อยู่
+สร้าง Request ใหม่ DELETE http://localhost:3000/api/books/5 พร้อมแนบ Token
+กดปุ่ม Send เพื่อส่ง Request
+
+### 6. พฤติกรรมที่คาดหวัง (Expected Behavior)
+ระบบควรตรวจสอบว่าหนังสือถูกยืมอยู่ก่อนลบ หากมีการยืมค้างอยู่ควรตอบกลับด้วย 409 Conflict พร้อมแจ้งว่าไม่สามารถลบได้
+### 7. พฤติกรรมจริง (Actual Behavior)
+ระบบตอบกลับด้วย HTTP 200 OK และลบหนังสือสำเร็จ ทั้งที่หนังสือถูกยืมอยู่ ทำให้ borrowing record กำพร้า (orphan)
+### 8. ผลกระทบ (Impact)
+ข้อมูลในฐานข้อมูลเกิด data integrity issue สมาชิกที่ยืมหนังสืออยู่จะไม่สามารถคืนหนังสือได้ และรายงานการยืม/คืนจะผิดพลาด
+### 9. ข้อมูลเพิ่มเติม (Additional Information)
+ข้อมูล Environment:
+
+OS: Windows
+Browser: API Testing via Postman
+Version of System: v2
+TC Ref.: TC-031
 
 ## เคล็ดลับการรายงาน Bug ที่ดี
 
