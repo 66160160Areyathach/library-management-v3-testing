@@ -1,0 +1,263 @@
+Books Test
+
+✅ TC-007 ทำงานได้ปกติ - GET /api/books with valid authentication
+TC-007 STATUS: PASS✓
+Test Case: TC-007 GET /api/books Happy Path
+Result: ✅ สำเร็จ - HTTP 200 OK + array of books
+Execution Time: 14ms
+Bug: None
+Fix Bug: N/A
+Additional Info:
+- Books exist in system (from database seed data)
+- Valid session authentication required
+- Returns all books with required fields (book_id, title, author, available_copies)
+
+✅ TC-008 ทำงานได้ปกติ - Genre filtering feature
+TC-008 STATUS: PASS✓
+Test Case: GET /api/books?genre=fiction
+Result: ✅ สำเร็จ - HTTP 200 OK + filtered array
+Execution Time: 6ms
+Bug: None
+Fix Bug: N/A
+Additional Info:
+- All books returned have correct genre
+- Authentication session validated
+
+✅ TC-009 ทำงานได้ปกติ - GET /api/books without authorization header
+TC-009 STATUS: PASS✓
+Test Case: TC-009 GET /api/books Sad Path (no Authorization header)
+Result: ✅ สำเร็จ - HTTP 401 Unauthorized as expected
+Execution Time: 7ms
+Bug: None
+Fix Bug: N/A
+Additional Info:
+-Server is running (precondition met)
+-No Authorization header sent in request
+-Authentication middleware correctly returns 401
+-Error response contains error property
+-Priority: High (security validation)
+
+✅ TC-010 ทำงานได้ปกติ - GET /api/books เมื่อ database ว่างเปล่า
+TC-010 STATUS: PASS✓
+Test Case: TC-010 GET /api/books Edge Case (Database ว่างเปล่า ไม่มีหนังสือ)
+Result: ✅ สำเร็จ - HTTP 200 OK + empty array []
+Execution Time: 15ms
+Bug: None
+Fix Bug: N/A
+Additional Info:
+-ลบข้อมูลหนังสือทั้งหมดก่อนทดสอบ (DELETE FROM books)
+-API ส่งกลับ empty array [] ไม่ใช่ 404
+-Authentication ทำงานถูกต้อง
+-Priority: Medium (edge case testing)
+
+✅ TC-011 ทำงานได้ปกติ - GET /api/books/:id Happy Path
+TC-011 STATUS: PASS✓
+Test Case: TC-011 GET /api/books/1 Happy Path (มีหนังสือ ID=1, Token ถูกต้อง)
+Result: ✅ สำเร็จ - HTTP 200 OK + book object ที่ถูกต้อง
+Execution Time: 12ms
+Bug: None
+Fix Bug: N/A
+Additional Info:
+-ตรวจสอบหนังสือ ID=1 จาก database seed data
+-Authentication ด้วย session cookie ทำงานถูกต้อง
+-Response รวม book_id, title, author, available_copies, isBorrowed
+-Priority: High (core functionality)
+
+✅ TC-012 ทำงานได้ปกติ - GET /api/books/:id Sad Path (ID ไม่มีในระบบ)
+TC-012 STATUS: PASS✓
+Test Case: TC-012 GET /api/books/99999 Sad Path (Token ถูกต้อง, ID ไม่มีในระบบ)
+Result: ✅ สำเร็จ - HTTP 404 Not Found + error message
+Execution Time: 5ms
+Bug: None
+Fix Bug: N/A
+Additional Info:
+-ใช้ ID 99999 ที่ไม่มีใน database
+-Authentication ด้วย adminCookie ทำงานถูกต้อง
+-Response รวม error property ตามที่คาดหวัง
+-Priority: High (error handling validation)
+
+✅ TC-013 ทำงานได้ปกติ - GET /api/books/abc
+TC-013 STATUS: FAIL✗
+Test Case: TC-013 GET /api/books/abc Sad Path (ID เป็น string)
+Result: ❌ ไม่สำเร็จ - ได้ HTTP 404 แทน 400
+Execution Time: 4ms
+Bug: ระบบไม่มี input validation สำหรับ ID format - ยอมรับ string แล้วส่ง 404
+วิธี Fix Bug: เพิ่ม ID validation ใน BookController.getById เพื่อ check parseInt() และส่ง 400 สำหรับ invalid format
+ID validation ขาดไป: ควรตรวจสอบว่า ID เป็น positive integer
+-Priority: High (input validation)
+
+✅ TC-014 ทำงานได้ปกติ - GET /api/books/0
+TC-014 STATUS: FAIL✗
+Test Case: TC-014 GET /api/books/0 Edge Case (ID = 0)
+Result: ❌ ไม่สำเร็จ - ได้ HTTP 404 แทน 400
+Execution Time: 4ms
+Bug: ระบบไม่ตรวจสอบว่า ID ต้องเป็น positive integer
+วิธี Fix Bug: เพิ่ม validation bookId <= 0 ใน BookController.getById เพื่อส่ง 400
+Edge case: ID = 0 ควรส่ง 400 ไม่ใช่ 404
+Priority: Medium (edge case validation)
+
+✅ TC-015 ทำงานได้ปกติ - POST /api/books create
+TC-015 STATUS: FAIL✗
+Test Case: TC-015 POST /api/books Happy Path (สร้างหนังสือใหม่)
+Result: ❌ ไม่สำเร็จ - Response ไม่สมบูรณ์
+Execution Time: 33ms
+Bug: API ส่ง { success: true, book_id: xxx } แทน full book object
+วิธี Fix Bug: เปลี่ยน response ให้ส่ง Book.findById(result.lastID) เพื่อให้ได้ full object พร้อม title, author, isbn เป็นต้น
+Response format: ควรส่ง book object ไม่ใช่ success message
+Priority: High (core CRUD functionality)
+
+✅ TC-016 ทำงานได้ปกติ - POST /api/books missing required field
+TC-016 STATUS: PASS✓
+Test Case: TC-016 POST /api/books Sad Path (Token ถูกต้อง, ขาด field title)
+Result: ✅ สำเร็จ - HTTP 400 Bad Request
+Execution Time: 4ms
+Bug: None
+วิธี Fix Bug: N/A
+Additional Info:
+ส่ง data: { "author": "John Doe" } โดยไม่มี title
+API ตรวจสอบ required fields ถูกต้อง
+Response ส่ง 400 Bad Request ตามการ validate
+Priority: High (input validation)
+
+✅ TC-017 ทำงานได้ปกติ - POST /api/books duplicate ISBN
+TC-017 STATUS: FAIL✗
+Test Case: TC-017 POST /api/books Sad Path (มีหนังสือ ISBN นี้อยู่แล้ว)
+Result: ❌ ไม่สำเร็จ - ได้ HTTP 400 แทน 409
+Execution Time: 4ms
+Bug: ระบบส่ง 400 Bad Request แทน 409 Conflict สำหรับ duplicate ISBN
+วิธี Fix Bug: เปลี่ยน HTTP status code จาก 400 เป็น 409 ใน BookController.create เมื่อ ISBN duplicate
+Additional Info:
+ส่ง data: { "title": "Book", "author": "John", "isbn": "9781234567890" }
+API มี logic ตรวจสอบ duplicate ISBN แต่ส่ง status code ผิด
+ควรส่ง 409 Conflict สำหรับ duplicate resource
+Priority: Medium (error handling specificity)
+
+✅ TC-018 ทำงานได้ปกติ - POST /api/books without authorization
+TC-018 STATUS: PASS✓
+Test Case: TC-018 POST /api/books Sad Path (Server is running, ไม่มี Authorization header)
+Result: ✅ สำเร็จ - HTTP 401 Unauthorized
+Execution Time: 4ms
+Bug: None
+วิธี Fix Bug: N/A
+Additional Info:
+ไม่ส่ง Authorization header (ไม่มี Cookie)
+Authentication middleware ทำงานถูกต้อง
+ระบบส่ง 401 Unauthorized ตามที่คาดหวัง
+Priority: High (security validation)
+
+✅ TC-019 ทำงานได้ปกติ - POST /api/books empty title field
+TC-019 STATUS: PASS✓
+Test Case: TC-019 POST /api/books Edge Case (Token ถูกต้อง, title ว่างเปล่า)
+Result: ✅ สำเร็จ - HTTP 400 Bad Request
+Execution Time: 3ms
+Bug: None
+วิธี Fix Bug: N/A
+Additional Info:
+ส่ง data: { "title": "", "author": "John" } ด้วย title เป็น empty string
+API ทำการ validate ถูกต้อง
+ระบบส่ง 400 Bad Request เพราะ title ว่างเปล่า
+Priority: Medium (edge case input validation)
+
+✅ TC-020 ทำงานได้ปกติ - PUT /api/books/:id Happy Path
+TC-020 STATUS: FAIL✗
+Test Case: TC-020 PUT /api/books/1 Happy Path (มีหนังสือ ID=1, Token ถูกต้อง, มีสิทธิ์ admin)
+Result: ❌ ไม่สำเร็จ - ได้ HTTP 400 Bad Request แทน 200
+Execution Time: 5ms
+Bug: ระบบส่ง 400 Bad Request สำหรับการอัพเดทแทน 200 OK
+วิธี Fix Bug: ตรวจสอบ validation logic ใน BookController.update - มีข้อกำหนด required fields ที่ไม่ควร apply สำหรับ update operation
+Additional Info:
+ส่ง data: { "title": "Updated Title" }
+API ควรอนุญาตให้อัพเดทเฉพาะ fields ที่ส่ง (partial update)
+Priority: High (CRUD update functionality)
+
+✅ TC-021 ทำงานได้ปกติ - PUT /api/books/:id not found
+TC-021 STATUS: PASS✓
+Test Case: TC-021 PUT /api/books/99999 Sad Path (Token ถูกต้อง, ID ไม่มีในระบบ)
+Result: ✅ สำเร็จ - HTTP 404 Not Found
+Execution Time: 4ms
+Bug: None
+วิธี Fix Bug: N/A
+Additional Info:
+ใช้ ID 99999 ที่ไม่มี ใน database
+API ตรวจสอบ existence ของ resource ถูกต้อง
+ระบบส่ง 404 Not Found ตามที่คาดหวัง
+Priority: High (error handling validation)
+
+✅ TC-022 ทำงานได้ปกติ - PUT /api/books/:id without authorization
+TC-022 STATUS: PASS✓
+Test Case: TC-022 PUT /api/books/1 Sad Path (Server is running, ไม่มี Authorization header)
+Result: ✅ สำเร็จ - HTTP 401 Unauthorized
+Execution Time: 3ms
+Bug: None
+วิธี Fix Bug: N/A
+Additional Info:
+ไม่ส่ง Authorization header (ไม่มี Cookie)
+Authentication middleware ทำงานถูกต้อง
+ระบบส่ง 401 Unauthorized ตามที่คาดหวัง
+Priority: High (security validation)
+
+✅ TC-023 ทำงานได้ปกติ - PUT /api/books/:id empty body
+TC-023 STATUS: PASS✓
+Test Case: TC-023 PUT /api/books/1 Edge Case (Token ถูกต้อง, body ว่างเปล่า)
+Result: ✅ สำเร็จ - HTTP 400 Bad Request (ตามการ validate)
+Execution Time: 4ms
+Bug: None
+วิธี Fix Bug: N/A
+Additional Info:
+ส่ง data: {} (empty body)
+API ตรวจสอบ required fields ถูกต้อง
+ระบบส่ง 400 Bad Request สำหรับ empty body
+Priority: Low (edge case validation)
+
+✅ TC-024 ทำงานได้ปกติ - DELETE /api/books/:id Happy Path
+TC-024 STATUS: PASS✓
+Test Case: TC-024 DELETE /api/books/2 Happy Path (มีหนังสือ ID=2, Token ถูกต้อง, มีสิทธิ์ admin)
+Result: ✅ สำเร็จ - HTTP 200 OK / 204 No Content
+Execution Time: 30ms
+Bug: None
+วิธี Fix Bug: N/A
+Additional Info:
+ลบหนังสือ ID=2 ที่มีอยู่จริงใน database
+Authentication ด้วย admin cookie ทำงานถูกต้อง
+ระบบส่ง 200 OK หรือ 204 No Content ตามที่คาดหวัง
+Priority: High (core CRUD delete functionality)
+
+✅ TC-025 ทำงานได้ปกติ - DELETE /api/books/:id not found
+TC-025 STATUS: PASS✓
+Test Case: TC-025 DELETE /api/books/99999 Sad Path (Token ถูกต้อง, ID ไม่มีในระบบ)
+Result: ✅ สำเร็จ - HTTP 404 Not Found
+Execution Time: 3ms
+Bug: None
+วิธี Fix Bug: N/A
+Additional Info:
+ใช้ ID 99999 ที่ไม่มีใน database
+API ตรวจสอบ existence ของ resource ถูกต้อง
+ระบบส่ง 404 Not Found ตามที่คาดหวัง
+Priority: High (error handling validation)
+
+✅ TC-026 ทำงานได้ปกติ - DELETE /api/books/:id without authorization
+TC-026 STATUS: PASS✓
+Test Case: TC-026 DELETE /api/books/1 Sad Path (Server is running, ไม่มี Authorization header)
+Result: ✅ สำเร็จ - HTTP 401 Unauthorized
+Execution Time: 3ms
+Bug: None
+วิธี Fix Bug: N/A
+Additional Info:
+ไม่ส่ง Authorization header (ไม่มี Cookie)
+Authentication middleware ทำงานถูกต้อง
+ระบบส่ง 401 Unauthorized ตามที่คาดหวัง
+Priority: High (security validation)
+
+✅ TC-031 ทำงานได้ปกติ - GET /api/books with expired token
+TC-031 STATUS: FAIL✗
+Test Case: TC-031 GET /api/books Edge Case (Token หมดอายุแล้ว)
+Result: ❌ ไม่สำเร็จ - ได้ "Unauthorized" แทน "Token expired"
+Execution Time: 3ms
+Bug: ระบบส่ง "Unauthorized" generic message แทน "Token expired" specific message
+วิธี Fix Bug: เพิ่ม token expiration check ใน authentication middleware เพื่อแยกแยะระหว่าง "no token" กับ "expired token" และส่ง error message ที่เหมาะสม
+Additional Info:
+ส่ง Authorization header: Bearer <expired_token>
+API ควรตรวจสอบ token expiration time
+ส่ง 401 Unauthorized พร้อม "Token expired" message
+Priority: High (security validation)
+
